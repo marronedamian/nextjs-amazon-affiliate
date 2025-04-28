@@ -1,0 +1,59 @@
+# Dependencies
+node_modules/
+.pnp/
+.pnp.js
+
+# Production
+/.next
+/out
+/build
+
+# Testing
+/coverage
+coverage.txt
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment variables
+.env
+.env.*.local
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.sw?
+
+# OS-specific
+ehthumbs.db
+Icon?
+Desktop.ini
+
+# Next.js export fallback
+.next-export
+
+# Optional: Docker artifacts
+docker-compose.override.yml
+*.local.yml
+
+# Optional: local data
+*.sqlite
+*.log
+*.bak
+*.tmp
+
+# Optional: custom CLI outputs or cache
+.cache/
+dist/
+tsconfig.tsbuildinfo
