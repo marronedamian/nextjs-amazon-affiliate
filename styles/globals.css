@@ -1,0 +1,10 @@
+@import "tailwindcss/preflight";
+@import "tailwindcss/utilities";
+
+html, body {
+    cursor: default;
+}
+
+a, button, .cursor-pointer {
+    cursor: pointer;
+}

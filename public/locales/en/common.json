@@ -1,0 +1,68 @@
+{
+  "header": {
+    "signIn": "Sign In",
+    "profile": "Profile",
+    "signOut": "Sign Out"
+  },
+  "hero": {
+    "title_part1": "Discover the",
+    "title_part2": "Top Selling Products",
+    "subtitle": "AI-generated reviews • Daily updates • Verified links",
+    "cta_es": "Explore in Spanish",
+    "cta_en": "Explore in English"
+  },
+  "benefits": {
+    "title": "Exclusive Benefits",
+    "ai_title": "AI-Powered Reviews",
+    "ai_desc": "Smart evaluation of thousands of products to select only the best",
+    "daily_title": "Daily Updates",
+    "daily_desc": "New products and trends added every 24 hours",
+    "affiliate_title": "Certified Affiliate",
+    "affiliate_desc": "Secure links with official Amazon Associates commissions"
+  },
+  "how": {
+    "title": "How It Works",
+    "0": {
+      "title": "Create your account",
+      "desc": "Sign up for free and personalize your profile."
+    },
+    "1": {
+      "title": "Explore the content",
+      "desc": "Browse AI-generated reviews every day."
+    },
+    "2": {
+      "title": "Monetize with affiliates",
+      "desc": "Earn by sharing recommended affiliate links."
+    }
+  },
+  "testimonials": {
+    "title": "What our users say",
+    "0": {
+      "quote": "This platform transformed the way I buy and sell.",
+      "name": "Sophie M."
+    },
+    "1": {
+      "quote": "The AI content is clear and very accurate.",
+      "name": "John P."
+    },
+    "2": {
+      "quote": "I love how simple everything is. Highly recommended!",
+      "name": "Martina G."
+    }
+  },
+  "cta": {
+    "title": "Ready to explore the future of analysis?",
+    "description": "Join for free and start discovering AI-powered, personalized content.",
+    "button": "Browse the blog"
+  },
+  "blog": {
+    "title": "Recommended Articles",
+    "searchPlaceholder": "Search articles...",
+    "filters": "Filters"
+  },
+  "login": {
+    "welcome": "Welcome back!",
+    "title": "Log in to continue",
+    "signInWithGoogle": "Log In with Google"
+  }
+}

@@ -1,0 +1,11 @@
+version: '3.8'
+services:
+  frontend:
+    image: amazonaffiliate-fe:1
+    build: ./
+    container_name: amazonaffiliate-fe
+    hostname: amazonaffiliate-fe
+    restart: always
+    ports:
+      - '8085:8085'
+    env_file: .env

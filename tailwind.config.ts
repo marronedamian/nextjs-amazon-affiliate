@@ -1,11 +1,50 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-  content: ["./app/**/*.{js,ts,jsx,tsx}"],
+  content: [
+    "./app/**/*.{js,ts,jsx,tsx}",
+    "./components/**/*.{js,ts,jsx,tsx}",
+    "./pages/**/*.{js,ts,jsx,tsx}",
+  ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        translucentWhite: "rgba(255, 255, 255, 0.1)",
+        translucentBlack: "rgba(0, 0, 0, 0.4)",
+      },
+      backgroundImage: {
+        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
+      },
+      keyframes: {
+        "fade-up": {
+          "0%": { opacity: "0", transform: "translateY(20px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        pulseSlow: {
+          "0%, 100%": { opacity: "0.2", transform: "scale(1)" },
+          "50%": { opacity: "0.4", transform: "scale(1.05)" },
+        },
+      },
+      animation: {
+        "fade-up": "fade-up 0.8s ease-out forwards",
+        "pulse-slow": "pulseSlow 10s ease-in-out infinite",
+      },
+    },
   },
-  plugins: [],
+  plugins: [require("@tailwindcss/typography")],
+  // @ts-expect-error - Tailwind acepta esto aunque no esté en UserConfig
+  safelist: [
+    "animate-fade-up",
+    "delay-100",
+    "delay-200",
+    "delay-300",
+    "delay-400",
+    "delay-500",
+    "group-hover:scale-110",
+    "group-hover:scale-105",
+    "hover:scale-105",
+    "hover:shadow-xl",
+  ],
 };
 
 export default config;

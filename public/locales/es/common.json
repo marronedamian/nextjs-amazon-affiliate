@@ -1,0 +1,68 @@
+{
+  "header": {
+    "signIn": "Iniciar sesión",
+    "profile": "Perfil",
+    "signOut": "Cerrar sesión"
+  },
+  "hero": {
+    "title_part1": "Descubre los",
+    "title_part2": "Productos Más Vendidos",
+    "subtitle": "Reseñas automatizadas con IA • Actualizaciones diarias • Enlaces verificados",
+    "cta_es": "Explorar en Español",
+    "cta_en": "Explore in English"
+  },
+  "benefits": {
+    "title": "Ventajas Exclusivas",
+    "ai_title": "Análisis con IA",
+    "ai_desc": "Evaluación inteligente de miles de productos para seleccionar solo los mejores",
+    "daily_title": "Actualizaciones Diarias",
+    "daily_desc": "Nuevos productos y tendencias agregados cada 24 horas",
+    "affiliate_title": "Afiliado Certificado",
+    "affiliate_desc": "Enlaces seguros con comisiones oficiales de Amazon Associates"
+  },
+  "how": {
+    "title": "¿Cómo funciona?",
+    "0": {
+      "title": "Creá tu cuenta",
+      "desc": "Registrate de forma gratuita y personalizá tu perfil."
+    },
+    "1": {
+      "title": "Explorá el contenido",
+      "desc": "Navegá por análisis generados con IA todos los días."
+    },
+    "2": {
+      "title": "Monetizá con afiliados",
+      "desc": "Obtené beneficios compartiendo enlaces recomendados."
+    }
+  },
+  "testimonials": {
+    "title": "Lo que dicen nuestros usuarios",
+    "0": {
+      "quote": "Esta plataforma transformó mi manera de comprar y vender.",
+      "name": "Sofía M."
+    },
+    "1": {
+      "quote": "Los contenidos generados por IA son claros y precisos.",
+      "name": "Juan P."
+    },
+    "2": {
+      "quote": "Me encanta lo simple que es todo. ¡La recomiendo!",
+      "name": "Martina G."
+    }
+  },
+  "cta": {
+    "title": "¿Listo para descubrir el futuro del análisis?",
+    "description": "Unite gratis y comenzá a explorar contenido personalizado impulsado por inteligencia artificial.",
+    "button": "Explorá el blog"
+  },
+  "blog": {
+    "title": "Artículos Recomendados",
+    "searchPlaceholder": "Buscar articulos...",
+    "filters": "Filtros"
+  },
+  "login": {
+    "welcome": "¡Bienvenido de nuevo!",
+    "title": "Iniciar sesión para continuar",
+    "signInWithGoogle": "Iniciar sesión con Google"
+  }
+}
