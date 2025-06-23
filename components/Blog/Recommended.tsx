@@ -1,5 +1,3 @@
-"use client";
-
 import { getRecommendedProducts } from "@/lib/amazon/recommender";
 import { Heart, ShoppingCart } from "lucide-react";
 

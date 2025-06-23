@@ -4,7 +4,7 @@ import { getToken } from "next-auth/jwt";
 const PUBLIC_FILE = /\.(.*)$/;
 const locales = ["en", "es"];
 const defaultLocale = "en";
-const authRequiredRoutes = ["/profile"];
+const authRequiredRoutes = ["/profile","/onboarding"];
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;

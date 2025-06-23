@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import { Language } from "@/utils/i18n/settings";
-import HomeContent from "@/components/Home/Content";
+import HomeContent from "@/components/Home/HomeContent";
 
 export async function generateMetadata({
     params,

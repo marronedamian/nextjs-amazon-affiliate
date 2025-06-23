@@ -2,7 +2,7 @@ import { getPosts } from "@/utils/amazon/posts";
 import { generateSiteMetadata } from "@/utils/seo";
 import dynamic from "next/dynamic";
 
-const BlogContent = dynamic(() => import("@/components/Blog/Content"), { ssr: false });
+const BlogContent = dynamic(() => import("@/components/Blog/BlogContent"), { ssr: false });
 
 export async function generateMetadata({ params }: { params: { lang: "es" | "en" } }) {
     return generateSiteMetadata(params.lang);

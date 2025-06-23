@@ -10,7 +10,7 @@ const userStats = {
     reviews: 12,
 };
 
-export default function Content({ session }: { session: any }) {
+export default function UserCard({ session }: { session: any }) {
     return (
         <main className="relative min-h-screen bg-gradient-radial from-[#1a1a1d] via-[#111114] to-[#0a0a0a] text-white font-sans overflow-hidden">
             {/* Blobs de fondo */}
