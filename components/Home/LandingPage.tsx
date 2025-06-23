@@ -9,6 +9,7 @@ import useSessionTracker from "@/hooks/auth/useSessionTracker";
 import i18n from "@/utils/i18n/i18n";
 import AOS from "aos";
 import "aos/dist/aos.css";
+import Background from "../Shared/Background";
 
 export default function LandingPage({ lang }: { lang: string }) {
     const { t } = useTranslation("common");
@@ -46,13 +47,7 @@ export default function LandingPage({ lang }: { lang: string }) {
     ];
 
     return (
-        <main className="relative min-h-screen overflow-hidden text-white font-sans bg-gradient-radial from-[#1a1a1d] via-[#111114] to-[#0a0a0a]">
-            <div className="absolute inset-0 -z-10 overflow-hidden">
-                <div className="absolute top-1/3 left-[-10%] w-[400px] h-[400px] bg-pink-500 opacity-20 rounded-full blur-[200px] animate-pulse-slow" />
-                <div className="absolute top-[20%] right-[10%] w-[300px] h-[300px] bg-purple-500 opacity-20 rounded-full blur-[180px] animate-pulse-slow delay-700" />
-                <div className="absolute bottom-[-5%] left-[35%] w-[600px] h-[600px] bg-blue-500 opacity-10 rounded-full blur-[240px] animate-pulse-slow delay-1000" />
-            </div>
-
+        <Background>
             <section className="pt-40 pb-24 px-6 text-center z-10 relative">
                 <div className="max-w-4xl mx-auto p-10 bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-lg transition duration-500" data-aos="fade-down">
                     <h1 className="text-5xl md:text-6xl font-extrabold mb-6 leading-tight tracking-tight">
@@ -115,6 +110,6 @@ export default function LandingPage({ lang }: { lang: string }) {
                     {t("cta.button")}
                 </Link>
             </section>
-        </main>
+        </Background>
     );
 }

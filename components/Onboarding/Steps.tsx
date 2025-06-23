@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { categories as allCategories } from "@/utils/amazon/categories";
 import LiquidGlassWrapper from "@/components/Shared/LiquidGlassWrapper";
 import ReactSlider from "react-slider";
+import Background from "../Shared/Background";
 
 export default function Steps({ session }: { session: any }) {
     const [step, setStep] = useState(1);
@@ -41,13 +42,7 @@ export default function Steps({ session }: { session: any }) {
     };
 
     return (
-        <main className="relative min-h-screen bg-gradient-radial from-[#1a1a1d] via-[#111114] to-[#0a0a0a] text-white font-sans overflow-hidden">
-            <div className="absolute inset-0 -z-10 overflow-hidden">
-                <div className="absolute top-1/3 left-[-10%] w-[400px] h-[400px] bg-pink-500 opacity-20 rounded-full blur-[200px] animate-pulse-slow" />
-                <div className="absolute top-[20%] right-[10%] w-[300px] h-[300px] bg-purple-500 opacity-20 rounded-full blur-[180px] animate-pulse-slow delay-700" />
-                <div className="absolute bottom-[-5%] left-[35%] w-[600px] h-[600px] bg-blue-500 opacity-10 rounded-full blur-[240px] animate-pulse-slow delay-1000" />
-            </div>
-
+        <Background>
             <div className="relative flex items-center justify-center min-h-screen px-4">
                 <LiquidGlassWrapper className="relative max-w-xl w-full px-6 py-10 border border-white/10 rounded-3xl shadow-xl text-center overflow-visible">
                     {step === 1 && (
@@ -147,6 +142,6 @@ export default function Steps({ session }: { session: any }) {
                     )}
                 </LiquidGlassWrapper>
             </div>
-        </main>
+        </Background>
     );
 }

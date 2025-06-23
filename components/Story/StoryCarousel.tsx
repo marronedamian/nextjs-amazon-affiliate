@@ -62,7 +62,7 @@ const StoryCarousel = () => {
 
     return (
         <>
-            <section className="pt-20 pb-10 px-5 text-center z-10 relative">
+            <section className="pt-20 pb-2 px-8 text-center z-10 relative">
                 <div className="max-w-4xl mx-auto p-0 bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-lg">
                     <motion.div
                         className="flex space-x-4 p-4 overflow-x-auto w-full"
