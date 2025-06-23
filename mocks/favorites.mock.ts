@@ -1,0 +1,38 @@
+export const mockFavorites = [
+  {
+    id: "1",
+    title: "Facebook",
+    description: "Full time UI Designer",
+    image: "https://logo.clearbit.com/facebook.com",
+    price: "$8k",
+    location: "Tokyo, Japan",
+    daysAgo: "24h",
+  },
+  {
+    id: "2",
+    title: "Babbel",
+    description: "UX Design Lead",
+    image: "https://logo.clearbit.com/babbel.com",
+    price: "$6k",
+    location: "Berlin, Germany",
+    daysAgo: "4d",
+  },
+  {
+    id: "3",
+    title: "Amazon",
+    description: "Sr Product Designer",
+    image: "https://logo.clearbit.com/amazon.com",
+    price: "$8k",
+    location: "Berlin, Germany",
+    daysAgo: "6d",
+  },
+  {
+    id: "4",
+    title: "BuzzFeed",
+    description: "Product Designer",
+    image: "https://logo.clearbit.com/buzzfeed.com",
+    price: "$8k",
+    location: "New York, NY",
+    daysAgo: "2d",
+  },
+];
