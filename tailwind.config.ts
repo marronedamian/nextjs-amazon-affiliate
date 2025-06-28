@@ -11,9 +11,12 @@ const config: Config = {
       colors: {
         translucentWhite: "rgba(255, 255, 255, 0.1)",
         translucentBlack: "rgba(0, 0, 0, 0.4)",
+        fallbackDark: "#111114", 
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
+        "custom-radial":
+          "radial-gradient(circle at center, #1a1a1d, #111114, #0a0a0a)",
       },
       keyframes: {
         "fade-up": {

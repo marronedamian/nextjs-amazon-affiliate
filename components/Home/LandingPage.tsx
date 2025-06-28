@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
-import useSessionTracker from "@/hooks/auth/useSessionTracker";
 import i18n from "@/utils/i18n/i18n";
 import AOS from "aos";
 import "aos/dist/aos.css";
@@ -15,8 +14,6 @@ export default function LandingPage({ lang }: { lang: string }) {
     const { t } = useTranslation("common");
     const pathname = usePathname();
     const currentLang = pathname?.split("/")[1] || "en";
-
-    useSessionTracker();
 
     useEffect(() => {
         if (lang !== i18n.language) {

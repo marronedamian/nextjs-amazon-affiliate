@@ -5,12 +5,13 @@ import { db } from "@/lib/db";
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
-  if (!session)
+  if (!session || !session.user?.email) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   const { categories, priceRangeMin, priceRangeMax } = await req.json();
 
-  const user = await db.users.findUnique({
+  const user = await db.user.findUnique({
     where: { email: session.user.email! },
   });
 
@@ -53,11 +54,12 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
-  if (!session) {
+
+  if (!session || !session.user?.email) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const user = await db.users.findUnique({
+  const user = await db.user.findUnique({
     where: { email: session.user.email! },
     include: {
       preferences: {

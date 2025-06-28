@@ -1,9 +1,14 @@
-
 import { signIn } from "next-auth/react";
 import LiquidGlassWrapper from "@/components/Shared/LiquidGlassWrapper";
 import Background from "../Shared/Background";
 
-const LoginForm = ({ t }: { t: any }) => {
+const LoginForm = ({
+    t,
+    callbackUrl = "/",
+}: {
+    t: any;
+    callbackUrl?: string;
+}) => {
     return (
         <Background>
             <div className="relative flex items-center justify-center min-h-screen px-4">
@@ -14,7 +19,7 @@ const LoginForm = ({ t }: { t: any }) => {
                     <div className="bg-white/5 backdrop-blur-sm rounded-full border border-white/10 shadow-sm inline-block">
                         <button
                             onClick={() =>
-                                signIn("google", { callbackUrl: "/" })
+                                signIn("google", { callbackUrl })
                             }
                             className="cursor-pointer px-6 py-3 rounded-full text-sm font-medium text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-200"
                         >
@@ -25,6 +30,6 @@ const LoginForm = ({ t }: { t: any }) => {
             </div>
         </Background>
     );
-}
+};
 
 export default LoginForm;

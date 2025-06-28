@@ -2,11 +2,12 @@
 
 import { useSession } from "next-auth/react";
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 export default function useSessionTracker() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (status !== "authenticated" || !session?.user?.email) return;
@@ -30,12 +31,13 @@ export default function useSessionTracker() {
       .then(async (res) => {
         const data = await res.json();
         if (res.ok && data?.firstTime === true) {
-          router.push("/onboarding"); // redirigir solo si es nuevo usuario
+          const locale = pathname?.split("/")[1] || "en";
+          router.push(`/${locale}/onboarding`);
         }
       })
       .catch((err) => {
         console.error("❌ Session track failed", err);
         sessionStorage.removeItem(key);
       });
-  }, [status, session, router]);
+  }, [status, session, router, pathname]);
 }

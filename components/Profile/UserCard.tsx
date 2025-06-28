@@ -1,9 +1,12 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import Image from "next/image";
 import LiquidGlassWrapper from "@/components/Shared/LiquidGlassWrapper";
 import Background from "../Shared/Background";
+import { useChatStore } from "@/lib/stores/chatStore";
+import { usePathname } from "next/navigation";
 
 const userStats = {
     favorites: 18,
@@ -11,10 +14,34 @@ const userStats = {
     reviews: 12,
 };
 
-export default function UserCard({ session }: { session: any }) {
+export default function UserCard({
+    session,
+    isOwner,
+}: {
+    session: any;
+    isOwner?: boolean;
+}) {
+    const router = useRouter();
+    const pathname = usePathname();
+    const locale = pathname?.split("/")[1] || "en";
+    const { setConversation } = useChatStore();
+
+    const handleStartConversation = async () => {
+        const res = await fetch("/api/messages/create", {
+            method: "POST",
+            body: JSON.stringify({ targetUserId: session.user.id }),
+            headers: { "Content-Type": "application/json" },
+        });
+
+        const data = await res.json();
+        if (data.conversationId) {
+            setConversation(data.conversationId, session.user);
+            router.push(`/${locale}/messages`);
+        }
+    };
+
     return (
         <Background>
-            {/* Contenido */}
             <div className="relative flex items-center justify-center min-h-screen px-4">
                 <LiquidGlassWrapper
                     className="relative max-w-xl w-full px-6 pt-[80px] pb-10 border border-white/10 rounded-3xl shadow-xl text-center overflow-visible"
@@ -55,34 +82,42 @@ export default function UserCard({ session }: { session: any }) {
 
                     {/* Botones */}
                     <div className="mt-10 flex flex-col md:flex-row justify-center gap-4">
-                        <LiquidGlassWrapper className="rounded-full cursor-pointer px-4 py-2 border border-white/10 bg-pink-500/10 backdrop-blur-md hover:scale-105 transition">
-                            <div className="flex items-center gap-2 text-sm text-pink-300 font-semibold">
-                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M10 12a5 5 0 100-10 5 5 0 000 10zM10 14c-5.33 0-8 2.667-8 4v2h16v-2c0-1.333-2.67-4-8-4z" />
-                                </svg>
-                                Connect
-                            </div>
-                        </LiquidGlassWrapper>
+                        {!isOwner && (
+                            <>
+                                <LiquidGlassWrapper className="rounded-full cursor-pointer px-4 py-2 border border-white/10 bg-pink-500/10 backdrop-blur-md hover:scale-105 transition">
+                                    <div className="flex items-center gap-2 text-sm text-pink-300 font-semibold">
+                                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M10 12a5 5 0 100-10 5 5 0 000 10zM10 14c-5.33 0-8 2.667-8 4v2h16v-2c0-1.333-2.67-4-8-4z" />
+                                        </svg>
+                                        Connect
+                                    </div>
+                                </LiquidGlassWrapper>
 
-                        <LiquidGlassWrapper className="rounded-full cursor-pointer px-4 py-2 border border-white/10 bg-purple-500/10 backdrop-blur-md hover:scale-105 transition">
-                            <div className="flex items-center gap-2 text-sm text-purple-300 font-semibold">
-                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H6l-4 4V5z" />
-                                </svg>
-                                Message
-                            </div>
-                        </LiquidGlassWrapper>
+                                <LiquidGlassWrapper className="rounded-full cursor-pointer px-4 py-2 border border-white/10 bg-purple-500/10 backdrop-blur-md hover:scale-105 transition">
+                                    <div
+                                        onClick={handleStartConversation}
+                                        className="flex items-center gap-2 text-sm text-purple-300 font-semibold"
+                                    >
+                                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H6l-4 4V5z" />
+                                        </svg>
+                                        Message
+                                    </div>
+                                </LiquidGlassWrapper>
+                            </>
+                        )}
+
+                        {isOwner && (
+                            <LiquidGlassWrapper className="mt-5 inline-flex items-center rounded-full border border-white/10 bg-red-500/10 backdrop-blur-md hover:scale-105 transition">
+                                <div
+                                    onClick={() => signOut({ callbackUrl: "/" })}
+                                    className="text-sm text-red-300 font-semibold px-5 py-2 cursor-pointer"
+                                >
+                                    Cerrar sesión
+                                </div>
+                            </LiquidGlassWrapper>
+                        )}
                     </div>
-
-                    {/* Botón cerrar sesión */}
-                    <LiquidGlassWrapper className="mt-5 inline-flex items-center rounded-full border border-white/10 bg-red-500/10 backdrop-blur-md hover:scale-105 transition">
-                        <div
-                            onClick={() => signOut({ callbackUrl: "/" })}
-                            className="text-sm text-red-300 font-semibold px-5 py-2 cursor-pointer"
-                        >
-                            Cerrar sesión
-                        </div>
-                    </LiquidGlassWrapper>
                 </LiquidGlassWrapper>
             </div>
         </Background>

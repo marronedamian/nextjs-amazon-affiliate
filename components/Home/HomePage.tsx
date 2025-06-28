@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { motion, AnimatePresence, cubicBezier } from "framer-motion";
 
+import useSessionTracker from "@/hooks/auth/useSessionTracker";
 import StoryCarousel from "@/components/Story/StoryCarousel";
 import BottomNav from "@/components/Navigation/BottomNav";
 import ReelsFeed from "@/components/Reels/ReelsFeed";
@@ -20,6 +21,8 @@ export default function HomePage({ lang }: { lang: string }) {
     const [showBottomNav, setShowBottomNav] = useState(true);
     const [showReels, setShowReels] = useState(false);
     const [currentReelIndex, setCurrentReelIndex] = useState(0);
+
+    useSessionTracker();
 
     useEffect(() => {
         if (status === "unauthenticated") {
@@ -93,8 +96,6 @@ export default function HomePage({ lang }: { lang: string }) {
                     />
                 )}
             </AnimatePresence>
-
-            {showBottomNav && <BottomNav />}
         </Background>
     );
 }

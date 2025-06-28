@@ -17,7 +17,7 @@ export default function Header() {
     const menuRef = useRef<HTMLDivElement>(null);
 
     const pathname = usePathname();
-    const currentLang = pathname.split("/")[1];
+    const currentLang = pathname?.split("/")[1];
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -83,7 +83,7 @@ export default function Header() {
                                     >
                                         <LiquidGlassWrapper className="w-full border-b border-white/10 shadow-[inset_0_-1px_0_0_rgba(255,255,255,0.1)] transition-all duration-300">
                                             <Link
-                                                href="/en/profile"
+                                                href={`/${currentLang}/${session.user.username}`}
                                                 className="flex items-center gap-2 px-4 py-2 text-sm text-white cursor-pointer transition"
                                                 onClick={() => setMenuOpen(false)}
                                             >
@@ -115,6 +115,6 @@ export default function Header() {
                     </div>
                 </div>
             </LiquidGlassWrapper>
-        </header>
+        </header >
     );
 }

@@ -5,7 +5,6 @@ import { db } from "@/lib/db";
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
-
   if (!session || !session.user?.email) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -14,14 +13,35 @@ export async function POST(req: Request) {
     const { name, image } = await req.json();
     const email = session.user.email;
 
-    const existingUser = await db.users.findUnique({ where: { email } });
-    const isFirstTime = !existingUser;
+    const existingUser = await db.user.findUnique({ where: { email } });
+    let isFirstTime = false;
 
-    await db.users.upsert({
-      where: { email },
-      update: { name, image },
-      create: { email, name, image },
-    });
+    if (!existingUser) {
+      // Generar username único basado en el correo
+      const base = email.split("@")[0];
+      let username = base;
+      let count = 1;
+
+      while (await db.user.findUnique({ where: { username } })) {
+        username = `${base}${count++}`;
+      }
+
+      await db.user.create({
+        data: {
+          email,
+          name,
+          image,
+          username,
+        },
+      });
+
+      isFirstTime = true;
+    } else {
+      await db.user.update({
+        where: { email },
+        data: { name, image },
+      });
+    }
 
     return NextResponse.json(
       { message: "Tracked successfully", firstTime: isFirstTime },

@@ -2,13 +2,15 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-
+import { usePathname } from "next/navigation";
 import { categories as allCategories } from "@/utils/amazon/categories";
 import LiquidGlassWrapper from "@/components/Shared/LiquidGlassWrapper";
 import ReactSlider from "react-slider";
 import Background from "../Shared/Background";
 
 export default function Steps({ session }: { session: any }) {
+    const pathname = usePathname();
+    const locale = pathname?.split("/")[1] || "en";
     const [step, setStep] = useState(1);
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
     const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
@@ -38,7 +40,8 @@ export default function Steps({ session }: { session: any }) {
                 "Content-Type": "application/json",
             },
         });
-        router.push("/blog");
+        const locale = pathname?.split("/")[1] || "en";
+        router.push(`/${locale}/blog`);
     };
 
     return (

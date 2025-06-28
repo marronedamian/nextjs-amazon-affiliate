@@ -5,6 +5,10 @@ html, body {
     cursor: default;
 }
 
+body.no-scroll {
+    overflow: hidden;
+}
+
 a, button, .cursor-pointer {
     cursor: pointer;
 }

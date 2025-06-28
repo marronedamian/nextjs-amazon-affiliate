@@ -1,51 +1,56 @@
-import { NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-const PUBLIC_FILE = /\.(.*)$/;
-const locales = ["en", "es"];
-const defaultLocale = "en";
-const authRequiredRoutes = ["/profile","/onboarding"];
+const PUBLIC_PATHS = ["/", "/blog", "/auth/login"];
+
+function getLocale(pathname: string): string | null {
+  const match = pathname.match(/^\/(es|en)(\/|$)/);
+  return match?.[1] || null;
+}
+
+function getPathWithoutLocale(pathname: string): string {
+  return pathname.replace(/^\/(es|en)/, "") || "/";
+}
 
 export async function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl;
+  const { pathname, search } = req.nextUrl;
 
-  // Ignorar rutas públicas
-  if (
-    pathname.startsWith("/_next") ||
-    pathname.startsWith("/api/") ||
-    PUBLIC_FILE.test(pathname)
-  ) {
-    return;
+  // ✅ Redirige rutas sin locale al default "/en"
+  const locale = getLocale(pathname);
+  if (!locale) {
+    const url = req.nextUrl.clone();
+    url.pathname = `/en${pathname}`;
+    return NextResponse.redirect(url);
   }
 
-  // Redirección si falta el idioma
-  const pathnameIsMissingLocale = locales.every(
-    (locale) => !pathname.startsWith(`/${locale}`)
-  );
-
-  if (pathnameIsMissingLocale) {
-    return NextResponse.redirect(
-      new URL(`/${defaultLocale}${pathname}`, req.url)
-    );
+  // ✅ Redirige "/" a "/en" (por consistencia)
+  if (pathname === "/") {
+    const url = req.nextUrl.clone();
+    url.pathname = "/en";
+    return NextResponse.redirect(url);
   }
 
-  // Proteger rutas como /en/profile o /es/profile
-  const isProtected = authRequiredRoutes.some((route) =>
-    pathname.includes(`/${route}`)
-  );
+  const pathWithoutLocale = getPathWithoutLocale(pathname);
 
-  if (isProtected) {
-    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-    if (!token) {
-      const locale =
-        locales.find((l) => pathname.startsWith(`/${l}`)) || defaultLocale;
-      return NextResponse.redirect(new URL(`/${locale}/auth/login`, req.url));
-    }
+  // ✅ Permitir rutas públicas
+  const isPublic = PUBLIC_PATHS.some(
+    (p) => pathWithoutLocale === p || pathWithoutLocale.startsWith(p + "/")
+  );
+  if (isPublic) return NextResponse.next();
+
+  // 🛡️ Verificar sesión
+  const token = await getToken({ req });
+  if (!token) {
+    const loginUrl = req.nextUrl.clone();
+    loginUrl.pathname = `/${locale}/auth/login`;
+    loginUrl.searchParams.set("callbackUrl", pathname + search);
+    return NextResponse.redirect(loginUrl);
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/((?!api|_next|.*\\..*).*)"],
+  matcher: ["/((?!_next|api|_next/static|favicon.ico|.*\\..*).*)"],
 };

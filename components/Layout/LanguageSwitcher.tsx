@@ -10,7 +10,7 @@ export default function LanguageSwitcher() {
     const router = useRouter();
     const pathname = usePathname();
 
-    const segments = useMemo(() => pathname.split("/").filter(Boolean), [pathname]);
+    const segments = useMemo(() => (pathname ?? "").split("/").filter(Boolean), [pathname]);
     const currentLang = segments[0];
     const isBlog = segments[1] === "blog";
     const slug = segments[2];

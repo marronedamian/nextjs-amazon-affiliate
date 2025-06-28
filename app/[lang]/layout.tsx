@@ -7,6 +7,7 @@ import Header from "@/components/Layout/Header";
 import Footer from "@/components/Layout/Footer";
 import BottomNav from "@/components/Navigation/BottomNav";
 import { useSession } from "next-auth/react";
+import { ConversationProvider } from "@/context/ConversationContext";
 import "@/app/globals.css";
 
 export default function LangLayout({
@@ -22,15 +23,17 @@ export default function LangLayout({
   return (
     <html lang={params.lang} className="h-full">
       <body className="flex flex-col min-h-screen text-white bg-transparent">
-        <I18nProvider lang={params.lang}>
-          <Header />
+        <ConversationProvider>
+          <I18nProvider lang={params.lang}>
+            <Header />
             <main className="flex-grow">{children}</main>
-          <Footer />
+            <Footer />
 
-          {isLoggedIn && (
-            <BottomNav />
-          )}
-        </I18nProvider>
+            {isLoggedIn && (
+              <BottomNav />
+            )}
+          </I18nProvider>
+        </ConversationProvider>
       </body>
     </html >
   );

@@ -1,9 +1,4 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
+// ---------- GENERATOR & DATASOURCE ----------
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,28 +8,145 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Users {
-  id             Int      @id @default(autoincrement())
-  email          String   @unique
-  name           String?
-  image          String?
-  preferences Preferences?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+//
+// ---------- MODELOS PRINCIPALES ----------
+//
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  image         String?
+  username      String    @unique
+  emailVerified DateTime?
+
+  preferences      Preferences?
+  messages         Message[]            @relation("UserMessages")
+  receivedMessages Message[]            @relation("UserReceivedMessages")
+  conversations    UserOnConversation[] @relation("UserConversations")
+  accounts         Account[]            @relation("UserAccounts")
+  sessions         Session[]            @relation("UserSessions")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("Users")
 }
 
 model Preferences {
-  id             String   @id @default(cuid())
-  userId         Int      @unique
-  user           Users    @relation(fields: [userId], references: [id])
-  priceRangeMin  Int
-  priceRangeMax  Int
-  categories     CategoryPreference[]
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+
+  priceRangeMin Int
+  priceRangeMax Int
+
+  categories CategoryPreference[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@map("Preferences")
 }
 
 model CategoryPreference {
-  id             String       @id @default(cuid())
-  name           String
-  preferencesId  String
-  preferences    Preferences  @relation(fields: [preferencesId], references: [id])
+  id   String @id @default(cuid())
+  name String
+
+  preferencesId String
+  preferences   Preferences @relation(fields: [preferencesId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@map("CategoryPreference")
+}
+
+//
+// ---------- MENSAJERÍA ----------
+//
+
+model Conversation {
+  id String @id @default(cuid())
+
+  participants UserOnConversation[] @relation("ConversationParticipants")
+  messages     Message[]            @relation("ConversationMessages")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("Conversation")
+}
+
+model UserOnConversation {
+  id String @id @default(cuid())
+
+  userId         String
+  conversationId String
+
+  user         User         @relation("UserConversations", fields: [userId], references: [id])
+  conversation Conversation @relation("ConversationParticipants", fields: [conversationId], references: [id])
+
+  @@unique([userId, conversationId])
+  @@map("UserOnConversation")
+}
+
+model Message {
+  id String @id @default(cuid())
+
+  read    Boolean @default(false)
+  content String  @db.Text
+
+  conversationId String
+  senderId       String
+  receiverId     String
+
+  conversation Conversation @relation("ConversationMessages", fields: [conversationId], references: [id])
+  sender       User         @relation("UserMessages", fields: [senderId], references: [id])
+  receiver     User         @relation("UserReceivedMessages", fields: [receiverId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@map("Message")
+}
+
+//
+// ---------- NEXTAUTH ----------
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation("UserAccounts", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("Account")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation("UserSessions", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("Session")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("VerificationToken")
 }

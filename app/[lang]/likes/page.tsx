@@ -1,8 +1,20 @@
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+import { authOptions } from "@/lib/auth";
+import { headers } from "next/headers";
 import { mockFavorites } from "@/mocks/favorites.mock";
 import Background from "@/components/Shared/Background";
 import FavoriteCard from "@/components/Favorites/FavoriteCard";
 
-export default function FavoritesPage() {
+export default async function FavoritesPage() {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+        const h = headers();
+        const referer = h.get("referer") || "";
+        const lang = referer.match(/\/(es|en)(\/|$)/)?.[1] || "en";
+        redirect(`/${lang}/auth/login`);
+    }
+
     return (
         <Background>
             <div className="max-w-2xl mx-auto space-y-6  pt-30 pb-30 px-6">

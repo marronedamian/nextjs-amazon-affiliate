@@ -1,38 +1,52 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useRouter, usePathname } from "next/navigation";
 import { FaHome, FaNewspaper, FaHeart, FaComments, FaUser } from "react-icons/fa";
-import { motion } from "framer-motion";
 import type { IconType } from "react-icons";
-
-const navItems: { icon: IconType; route: string; label: string }[] = [
-    { icon: FaHome, route: "/", label: "Home" },
-    { icon: FaNewspaper, route: "/blog", label: "Blog" },
-    { icon: FaHeart, route: "/likes", label: "Likes" },
-    { icon: FaComments, route: "/messages", label: "Messages" },
-    { icon: FaUser, route: "/profile", label: "Profile" },
-];
+import { useSession } from "next-auth/react";
+import { useConversation } from "@/context/ConversationContext";
+import useUnreadMessagesSocket from "@/hooks/sockets/useUnreadMessagesSocket";
 
 const BottomNav = () => {
     const router = useRouter();
     const pathname = usePathname();
+    const { data: session } = useSession();
+    const { activeConversationId } = useConversation();
+
+    const username = (session?.user as any)?.username ?? "";
+    const navItems = React.useMemo(() => [
+        { icon: FaHome, route: "/", label: "Home" },
+        { icon: FaNewspaper, route: "/blog", label: "Blog" },
+        { icon: FaHeart, route: "/likes", label: "Likes" },
+        { icon: FaComments, route: "/messages", label: "Messages" },
+        { icon: FaUser, route: `/${username}`, label: "Profile" },
+    ], [username]);
+
+    const unreadCount = useUnreadMessagesSocket(
+        session?.user.id || "",
+        pathname ?? "",
+        activeConversationId
+    );
 
     const [selected, setSelected] = useState("/");
 
-    // Detectar la ruta activa sin el idioma
     useEffect(() => {
-        const [, lang, section] = pathname.split("/"); // ['', 'es', 'profile']
-        const current = `/${section || ""}`; // si estás en /es => '/'
-        const match = navItems.find((item) => current === item.route);
+        if (!pathname) return;
+
+        const cleanPath = pathname.replace(/^\/(es|en)/, "") || "/";
+        const match = navItems.find((item) => item.route === cleanPath);
+
         if (match) {
             setSelected(match.route);
+        } else {
+            setSelected("");
         }
-    }, [pathname]);
+    }, [pathname, navItems]);
 
     const handleNavigation = (route: string) => {
-        const [, lang] = pathname.split("/"); // obtenemos el idioma actual
+        const [, lang] = (pathname ?? "").split("/");
         const target = route === "/" ? `/${lang}` : `/${lang}${route}`;
         setSelected(route);
         router.push(target);
@@ -49,12 +63,17 @@ const BottomNav = () => {
                 <div className="flex items-center justify-around px-4 py-2 bg-white/5 border border-white/10 backdrop-blur-xl rounded-full shadow-2xl">
                     {navItems.map((item, index) => {
                         const isActive = selected === item.route;
+                        const showBadge =
+                            item.route === "/messages" &&
+                            unreadCount > 0 &&
+                            (!(pathname?.includes("/messages")) || !activeConversationId);
+
                         return (
                             <motion.button
                                 key={index}
                                 onClick={() => handleNavigation(item.route)}
                                 whileTap={{ scale: 0.9 }}
-                                className="cursor-pointer group"
+                                className="cursor-pointer group relative"
                             >
                                 <div
                                     className={`relative w-10 h-10 p-[2px] rounded-full transition-transform ${isActive
@@ -74,6 +93,12 @@ const BottomNav = () => {
                                         })}
                                     </div>
                                 </div>
+
+                                {showBadge && (
+                                    <span className="absolute -top-1 -right-1 bg-pink-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                                        {unreadCount > 9 ? "9+" : unreadCount}
+                                    </span>
+                                )}
                             </motion.button>
                         );
                     })}
