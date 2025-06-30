@@ -1,13 +1,21 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import React from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { FaHome, FaNewspaper, FaHeart, FaComments, FaUser } from "react-icons/fa";
-import type { IconType } from "react-icons";
 import { useSession } from "next-auth/react";
+import {
+    FaHome,
+    FaNewspaper,
+    FaHeart,
+    FaComments,
+    FaUser,
+} from "react-icons/fa";
 import { useConversation } from "@/context/ConversationContext";
 import useUnreadMessagesSocket from "@/hooks/sockets/useUnreadMessagesSocket";
+import useUnreadNotificationsSocket from "@/hooks/sockets/useUnreadNotificationsSocket";
+import type { IconType } from "react-icons";
 
 const BottomNav = () => {
     const router = useRouter();
@@ -16,37 +24,39 @@ const BottomNav = () => {
     const { activeConversationId } = useConversation();
 
     const username = (session?.user as any)?.username ?? "";
-    const navItems = React.useMemo(() => [
-        { icon: FaHome, route: "/", label: "Home" },
-        { icon: FaNewspaper, route: "/blog", label: "Blog" },
-        { icon: FaHeart, route: "/likes", label: "Likes" },
-        { icon: FaComments, route: "/messages", label: "Messages" },
-        { icon: FaUser, route: `/${username}`, label: "Profile" },
-    ], [username]);
+    const userId = session?.user?.id || "";
 
-    const unreadCount = useUnreadMessagesSocket(
-        session?.user.id || "",
+    const unreadMessages = useUnreadMessagesSocket(
+        userId,
         pathname ?? "",
         activeConversationId
     );
+    const unreadNotifications = useUnreadNotificationsSocket(userId);
 
     const [selected, setSelected] = useState("/");
+
+    const navItems = useMemo(
+        () =>
+            [
+                { icon: FaHome, route: "/", label: "Home" },
+                { icon: FaNewspaper, route: "/blog", label: "Blog" },
+                { icon: FaHeart, route: "/notifications", label: "Notifications" },
+                { icon: FaComments, route: "/messages", label: "Messages" },
+                { icon: FaUser, route: `/${username}`, label: "Profile" },
+            ] satisfies { icon: IconType; route: string; label: string }[],
+        [username]
+    );
 
     useEffect(() => {
         if (!pathname) return;
 
         const cleanPath = pathname.replace(/^\/(es|en)/, "") || "/";
         const match = navItems.find((item) => item.route === cleanPath);
-
-        if (match) {
-            setSelected(match.route);
-        } else {
-            setSelected("");
-        }
+        setSelected(match ? match.route : "");
     }, [pathname, navItems]);
 
     const handleNavigation = (route: string) => {
-        const [, lang] = (pathname ?? "").split("/");
+        const [, lang] = pathname?.split("/") ?? [];
         const target = route === "/" ? `/${lang}` : `/${lang}${route}`;
         setSelected(route);
         router.push(target);
@@ -63,10 +73,21 @@ const BottomNav = () => {
                 <div className="flex items-center justify-around px-4 py-2 bg-white/5 border border-white/10 backdrop-blur-xl rounded-full shadow-2xl">
                     {navItems.map((item, index) => {
                         const isActive = selected === item.route;
-                        const showBadge =
+
+                        const showMessagesBadge =
                             item.route === "/messages" &&
-                            unreadCount > 0 &&
-                            (!(pathname?.includes("/messages")) || !activeConversationId);
+                            unreadMessages > 0 &&
+                            (!pathname?.includes("/messages") || !activeConversationId);
+
+                        const showNotificationsBadge =
+                            item.route === "/notifications" &&
+                            unreadNotifications > 0 &&
+                            !(pathname?.includes("/notifications"));
+
+                        const showBadge = showMessagesBadge || showNotificationsBadge;
+                        const badgeCount = item.route === "/messages"
+                            ? unreadMessages
+                            : unreadNotifications;
 
                         return (
                             <motion.button
@@ -96,7 +117,7 @@ const BottomNav = () => {
 
                                 {showBadge && (
                                     <span className="absolute -top-1 -right-1 bg-pink-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                                        {unreadCount > 9 ? "9+" : unreadCount}
+                                        {badgeCount > 99 ? "99+" : badgeCount}
                                     </span>
                                 )}
                             </motion.button>

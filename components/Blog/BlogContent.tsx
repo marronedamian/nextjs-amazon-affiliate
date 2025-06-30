@@ -20,7 +20,7 @@ export default function BlogContent({ posts, lang }: { posts: any[]; lang: strin
         <Background>
             <section className="max-w-7xl mx-auto pt-30 pb-30 px-6">
                 <div className="flex flex-col items-center justify-between gap-8 mb-24 sm:flex-row">
-                    <h1 className="text-5xl font-extrabold tracking-tight text-white">
+                   <h1 className="text-2xl font-bold tracking-tight">
                         {t("blog.title")}
                     </h1>
                     <div className="flex gap-3 w-full sm:w-auto">

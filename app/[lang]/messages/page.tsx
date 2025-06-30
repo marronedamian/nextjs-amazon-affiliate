@@ -63,7 +63,7 @@ export default function MessagesPage() {
     return (
         <Background>
             <div className="relative flex items-center justify-center min-h-screen px-4">
-                <div className="relative w-full max-w-md md:max-w-4xl h-[75vh] flex flex-col md:flex-row rounded-3xl overflow-hidden border border-white/10 backdrop-blur-xl">
+                <div className="relative w-full md:max-w-4xl h-[75vh] flex flex-col md:flex-row rounded-3xl overflow-hidden border border-white/10 backdrop-blur-xl">
                     {/* Sidebar */}
                     <aside className={`w-full md:w-1/3 h-full flex flex-col ${mobileView ? "hidden md:flex" : "flex"}`}>
                         <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 md:hidden">

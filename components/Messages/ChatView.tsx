@@ -15,7 +15,7 @@ export default function ChatView({
     onBack,
 }: {
     conversationId: string;
-    participant: { id: number; name: string; image: string };
+    participant: { id: number; name: string; image: string; username: string };
     onBack: () => void;
 }) {
     const { data: session } = useSession();
@@ -76,6 +76,7 @@ export default function ChatView({
             <ChatHeader
                 name={participant.name}
                 avatar={participant.image}
+                username={participant.username}
                 isTyping={isTyping}
                 onClose={handleClose}
             />

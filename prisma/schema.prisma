@@ -27,6 +27,12 @@ model User {
   accounts         Account[]            @relation("UserAccounts")
   sessions         Session[]            @relation("UserSessions")
 
+  followers Follower[] @relation("followedBy")
+  following Follower[] @relation("follows")
+
+  sentNotifications     Notification[] @relation("NotificationFromUser")
+  receivedNotifications Notification[] @relation("ReceivedNotifications")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -107,6 +113,68 @@ model Message {
   createdAt DateTime @default(now())
 
   @@map("Message")
+}
+
+//
+// ---------- SEGUIDORES ----------
+//
+
+model Follower {
+  id          String   @id @default(cuid())
+  follower    User     @relation("follows", fields: [followerId], references: [id])
+  followerId  String
+  following   User     @relation("followedBy", fields: [followingId], references: [id])
+  followingId String
+  createdAt   DateTime @default(now())
+
+  @@unique([followerId, followingId])
+}
+
+//
+// ---------- NOTIFICACIONES ----------
+//
+
+model NotificationType {
+  id           String                        @id @default(cuid())
+  name         String                        @unique
+  translations NotificationTypeTranslation[]
+
+  notifications Notification[]
+
+  @@map("NotificationType")
+}
+
+model NotificationTypeTranslation {
+  id       String @id @default(cuid())
+  language String // ej: "es", "en"
+  label    String // ej: "Te empezó a seguir", "Started following you"
+
+  notificationTypeId String
+  notificationType   NotificationType @relation(fields: [notificationTypeId], references: [id])
+
+  @@unique([language, notificationTypeId])
+  @@map("NotificationTypeTranslation")
+}
+
+model Notification {
+  id         String   @id @default(cuid())
+
+  typeId     String
+  type       NotificationType @relation(fields: [typeId], references: [id])
+
+  message    String
+  isRead     Boolean  @default(false)
+
+  userId     String
+  user       User     @relation("ReceivedNotifications", fields: [userId], references: [id])
+
+  fromUserId String
+  fromUser   User     @relation("NotificationFromUser", fields: [fromUserId], references: [id])
+
+  createdAt  DateTime @default(now())
+  metadata   Json
+
+  @@map("Notification")
 }
 
 //

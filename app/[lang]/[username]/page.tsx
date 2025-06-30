@@ -5,7 +5,7 @@ import { notFound, redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import UserCard from "@/components/Profile/UserCard";
 
-export const dynamic = 'force-dynamic'; 
+export const dynamic = "force-dynamic";
 export const revalidate = 60;
 
 export async function generateStaticParams() {
@@ -15,12 +15,16 @@ export async function generateStaticParams() {
     });
 
     return users.flatMap((user) => [
-        { lang: 'es', username: user.username },
-        { lang: 'en', username: user.username },
+        { lang: "es", username: user.username },
+        { lang: "en", username: user.username },
     ]);
 }
 
-export default async function UserProfilePage({ params }: { params: { username: string; lang: string } }) {
+export default async function UserProfilePage({
+    params,
+}: {
+    params: { username: string; lang: string };
+}) {
     const session = await getServerSession(authOptions);
     if (!session) {
         const h = headers();
@@ -29,10 +33,19 @@ export default async function UserProfilePage({ params }: { params: { username: 
         redirect(`/${lang}/auth/login`);
     }
 
-    const user = await db.user.findUnique({ where: { username: params.username } });
-    if (!user) return notFound();
+    const profileUser = await db.user.findUnique({
+        where: { username: params.username },
+    });
 
-    const isOwner = user.email === session.user.email;
+    if (!profileUser) return notFound();
 
-    return <UserCard session={{ user }} isOwner={isOwner} />;
+    const isOwner = session.user.id === profileUser.id;
+
+    return (
+        <UserCard
+            session={session}
+            isOwner={isOwner}
+            profileUser={profileUser}
+        />
+    );
 }
