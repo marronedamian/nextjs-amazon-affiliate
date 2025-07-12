@@ -1,4 +1,16 @@
 {
+  "global": {
+    "noUsersFound": "No users found",
+    "message": "Message",
+    "logout": "Sign Out",
+    "retry": "Retry",
+    "loading": "Loading...",
+    "disguise": "Hide",
+    "see": "View",
+    "now": "Now",
+    "close": "Close",
+    "cancel": "Cancel"
+  },
   "header": {
     "signIn": "Sign In",
     "profile": "Profile",
@@ -64,5 +76,95 @@
     "welcome": "Welcome back!",
     "title": "Log in to continue",
     "signInWithGoogle": "Log In with Google"
+  },
+  "profile": {
+    "unfollow": "Unfollow",
+    "follow": "Follow",
+    "followers": "Followers",
+    "following": "Following"
+  },
+  "posts": {
+    "newPosts_one": "View {{count}} new post",
+    "newPosts_other": "View {{count}} new posts",
+    "create": {
+      "title": "Create Post",
+      "description": "Write something interesting...",
+      "placeholder": "Write your post here...",
+      "loadingLink": "Loading link...",
+      "publish": "Publish",
+      "publishing": "Publishing...",
+      "success": "Published!",
+      "error": "Error publishing. Please try again.",
+      "maxImagesCount": "Maximum 4 JPG/PNG images",
+      "uploadImages": "Upload images for your post",
+      "noImage": "Image not available",
+      "searchGifs": "Search GIFs",
+      "noGifsFound": "No GIFs found",
+      "searchUsers": "Search users..."
+    },
+    "feed": {
+      "repostOf": "Repost of",
+      "deletePost": "Delete post",
+      "deleting": "Deleting...",
+      "tiktokVideo": "View on TikTok",
+      "cannotRepostOwnPost": "You can't repost your own post"
+    },
+    "comments": {
+      "placeholder": "Write a comment...",
+      "showLess": "Hide comments",
+      "showMore": "Show more comments",
+      "reply": "Reply",
+      "send": "Send",
+      "sending": "Sending...",
+      "replies": {
+        "placeholder": "Reply",
+        "showAll": "Show more replies",
+        "hideAll": "Hide replies",
+        "noReplies": "No replies yet"
+      }
+    }
+  },
+  "stories": {
+    "add": "Add",
+    "new": "New Story",
+    "publishing": "Publishing...",
+    "post": "Post",
+    "global": "Make visible to everyone",
+    "descriptionPlaceholder": "Write a description...",
+    "published": "Published",
+    "noImage": "Image not available",
+    "commentPlaceholder": "Write a comment...",
+    "maxImages": "Maximum reached (4 images)",
+    "uploadImages": "Upload images for your story",
+    "maxImagesCount": "maximum 4 JPG/PNG images"
+  },
+  "messages": {
+    "title": "Messages",
+    "activeUsers": "Recently Contacted",
+    "selectConversation": "Select a chat to start",
+    "empty": "No messages yet",
+    "placeholder": "Write a message...",
+    "send": "Send",
+    "sending": "Sending..."
+  },
+  "notifications": {
+    "title": "Notifications",
+    "subTitle": "Your recent interactions",
+    "markReadAll": "Mark all as read",
+    "empty": "You don't have any notifications yet.",
+    "tabs": {
+      "all": "All",
+      "like": "Likes",
+      "reply": "Replies",
+      "follow": "Follows",
+      "mention": "Mentions",
+      "comment": "Comments",
+      "repost": "Reposts"
+    },
+    "comeBackLater": "Come back later to see new interactions.",
+    "end": "You've reached the end of the notifications",
+    "singular": "notification",
+    "plural": "notifications",
+    "previous": "previous"
   }
 }

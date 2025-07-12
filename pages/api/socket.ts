@@ -65,6 +65,21 @@ export default function handler(
         }
       });
 
+      socket.on("new-story", async ({ storyId, authorId }) => {
+        try {
+          const followers = await db.follower.findMany({
+            where: { followingId: authorId },
+            select: { followerId: true },
+          });
+
+          for (const follower of followers) {
+            io.to(`user-${follower.followerId}`).emit("new-story", { storyId });
+          }
+        } catch (err) {
+          console.error("❌ Error al emitir nueva historia:", err);
+        }
+      });
+
       socket.on("disconnect", () => {
         console.log("🔴 Cliente desconectado:", socket.id);
       });

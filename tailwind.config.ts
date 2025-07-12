@@ -11,7 +11,7 @@ const config: Config = {
       colors: {
         translucentWhite: "rgba(255, 255, 255, 0.1)",
         translucentBlack: "rgba(0, 0, 0, 0.4)",
-        fallbackDark: "#111114", 
+        fallbackDark: "#111114",
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
@@ -27,10 +27,17 @@ const config: Config = {
           "0%, 100%": { opacity: "0.2", transform: "scale(1)" },
           "50%": { opacity: "0.4", transform: "scale(1.05)" },
         },
+        fadeIn: {
+          "0%": { opacity: "0" },
+          "100%": { opacity: "1" },
+        },
       },
       animation: {
         "fade-up": "fade-up 0.8s ease-out forwards",
         "pulse-slow": "pulseSlow 10s ease-in-out infinite",
+        "pulse-slow-new-post":
+          "pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        "fade-in": "fadeIn 0.3s ease-out both",
       },
     },
   },
@@ -38,6 +45,7 @@ const config: Config = {
   // @ts-expect-error - Tailwind acepta esto aunque no esté en UserConfig
   safelist: [
     "animate-fade-up",
+    "animate-fade-in",
     "delay-100",
     "delay-200",
     "delay-300",

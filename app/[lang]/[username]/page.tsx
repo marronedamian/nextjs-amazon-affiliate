@@ -3,6 +3,8 @@ import { authOptions } from "@/lib/auth";
 import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { db } from "@/lib/db";
+import { dir } from "i18next";
+import { createTranslation } from "@/utils/i18n/server";
 import UserCard from "@/components/Profile/UserCard";
 
 export const dynamic = "force-dynamic";
@@ -25,12 +27,11 @@ export default async function UserProfilePage({
 }: {
     params: { username: string; lang: string };
 }) {
+    const { t } = await createTranslation(params.lang, "common");
+
     const session = await getServerSession(authOptions);
     if (!session) {
-        const h = headers();
-        const referer = h.get("referer") || "";
-        const lang = referer.match(/\/(es|en)(\/|$)/)?.[1] || "en";
-        redirect(`/${lang}/auth/login`);
+        redirect(`/${params.lang}/auth/login`);
     }
 
     const profileUser = await db.user.findUnique({

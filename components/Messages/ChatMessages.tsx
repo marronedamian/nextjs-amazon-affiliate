@@ -2,15 +2,11 @@
 
 import { useEffect, useRef, useState, useMemo } from "react";
 import { useSession } from "next-auth/react";
+import type { Message } from "@/types/messages.types";
 import MessageBubble from "./MessageBubble";
-
-interface Message {
-    id: string;
-    content: string;
-    senderId: string;
-    createdAt: string;
-    senderImage?: string;
-}
+import { format, isSameDay, isToday } from "date-fns";
+import { es } from "date-fns/locale";
+import * as Tooltip from "@radix-ui/react-tooltip";
 
 export default function ChatMessages({
     conversationId,
@@ -76,26 +72,67 @@ export default function ChatMessages({
     }, [allMessages, currentUserId]);
 
     useEffect(() => {
-        const scrollContainer = document.getElementById('chat-scroll');
+        const scrollContainer = document.getElementById("chat-scroll");
         if (scrollContainer) {
             scrollContainer.scrollTop = scrollContainer.scrollHeight;
         }
     }, [groupedMessages]);
 
+    const renderDateDivider = (dateString: string) => {
+        const tooltipFullDate = format(new Date(dateString), "PPPPpp", { locale: es }); // Ej: viernes, 4 de julio de 2025, 05:36 p. m.
+        const shortDate = format(new Date(dateString), "dd/MM/yy, p", { locale: es });
+
+        return (
+            <Tooltip.Root>
+                <Tooltip.Trigger asChild>
+                    <div className="relative flex items-center justify-center my-6 select-none">
+                        <div className="flex-grow border-t border-white/10" />
+                        <span className="mx-4 text-xs text-white/70 bg-white/5 backdrop-blur-md px-3 py-0.5 rounded-full shadow-sm">
+                            📅 {shortDate}
+                        </span>
+                        <div className="flex-grow border-t border-white/10" />
+                    </div>
+                </Tooltip.Trigger>
+                <Tooltip.Portal>
+                    <Tooltip.Content
+                        side="top"
+                        align="center"
+                        className="text-sm text-white bg-black/80 backdrop-blur-md px-3 py-1 rounded-md shadow-md border border-white/10"
+                    >
+                        {tooltipFullDate}
+                    </Tooltip.Content>
+                </Tooltip.Portal>
+            </Tooltip.Root>
+        );
+    };
+
     return (
-        <div
-            id="chat-scroll"
-            className="h-full overflow-y-auto scroll-smooth px-4 py-3 md:px-6 space-y-4"
-        >
-            {groupedMessages.map((group, index) => (
-                <MessageBubble
-                    key={index}
-                    messages={group.messages}
-                    isOwn={group.isOwn}
-                    avatarUrl={group.avatarUrl}
-                />
-            ))}
-            <div ref={endRef} />
-        </div>
+        <Tooltip.Provider delayDuration={100}>
+            <div
+                id="chat-scroll"
+                className="h-full overflow-y-auto scroll-smooth px-4 py-3 md:px-6 space-y-4"
+            >
+                {groupedMessages.map((group, index) => {
+                    const isLastGroup = index === groupedMessages.length - 1;
+                    const currentLastMsg = group.messages[group.messages.length - 1];
+                    const nextFirstMsg = groupedMessages[index + 1]?.messages?.[0];
+                    const changedDay = nextFirstMsg
+                        ? !isSameDay(new Date(currentLastMsg.createdAt), new Date(nextFirstMsg.createdAt))
+                        : !isToday(new Date(currentLastMsg.createdAt));
+
+                    return (
+                        <div key={index} className="space-y-2">
+                            <MessageBubble
+                                messages={group.messages}
+                                isOwn={group.isOwn}
+                                avatarUrl={group.avatarUrl}
+                            />
+                            {changedDay && renderDateDivider(currentLastMsg.createdAt)}
+                        </div>
+                    );
+                })}
+                <div ref={endRef} />
+            </div>
+        </Tooltip.Provider>
     );
 }

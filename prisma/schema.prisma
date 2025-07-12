@@ -33,11 +33,25 @@ model User {
   sentNotifications     Notification[] @relation("NotificationFromUser")
   receivedNotifications Notification[] @relation("ReceivedNotifications")
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  Story          Story[]
+  StoryView      StoryView[]
+  StoryImageView StoryImageView[]
+
+  posts         Post[]
+  postLikes     PostLike[]
+  postBookmarks PostBookmark[]
+  comments      Comment[]
+  commentLikes  CommentLike[]
+  mentionedIn   Post[]         @relation("MentionedUsers")
 
   @@map("Users")
 }
+
+//
+// ---------- PREFERENCIAS ----------
+//
 
 model Preferences {
   id     String @id @default(cuid())
@@ -131,6 +145,162 @@ model Follower {
 }
 
 //
+// ---------- HISTORIAS ----------
+//
+
+model Story {
+  id          String       @id @default(cuid())
+  userId      String
+  user        User         @relation(fields: [userId], references: [id])
+  images      StoryImage[]
+  description String
+  isGlobal    Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+
+  views          StoryView[]
+  StoryImageView StoryImageView[]
+  Notification   Notification[]
+
+  @@map("Story")
+}
+
+model StoryImage {
+  id      String @id @default(cuid())
+  storyId String
+  story   Story  @relation(fields: [storyId], references: [id])
+  url     String
+  order   Int
+
+  @@map("StoryImage")
+}
+
+model StoryImageView {
+  id        String   @id @default(cuid())
+  userId    String
+  storyId   String
+  imageUrl  String
+  createdAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id])
+  story Story @relation(fields: [storyId], references: [id])
+
+  @@unique([userId, storyId, imageUrl])
+  @@map("StoryImageView")
+}
+
+model StoryView {
+  id      String @id @default(cuid())
+  userId  String
+  storyId String
+
+  user  User  @relation(fields: [userId], references: [id])
+  story Story @relation(fields: [storyId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, storyId])
+  @@map("StoryView")
+}
+
+//
+// ---------- POSTS ----------
+//
+
+model Post {
+  id           String         @id @default(cuid())
+  userId       String
+  user         User           @relation(fields: [userId], references: [id])
+  content      String         @db.Text
+  isRepost     Boolean        @default(false)
+  repostId     String?
+  repost       Post?          @relation("Reposts", fields: [repostId], references: [id])
+  reposts      Post[]         @relation("Reposts")
+  images       PostImage[]
+  gifs         PostGif[]
+  mentions     User[]         @relation("MentionedUsers")
+  likes        PostLike[]
+  bookmarks    PostBookmark[]
+  comments     Comment[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  Notification Notification[]
+
+  @@unique([userId, repostId])
+  @@map("Post")
+}
+
+model PostImage {
+  id     String @id @default(cuid())
+  postId String
+  post   Post   @relation(fields: [postId], references: [id])
+  url    String
+
+  @@map("PostImage")
+}
+
+model PostGif {
+  id     String @id @default(cuid())
+  postId String
+  post   Post   @relation(fields: [postId], references: [id])
+  url    String
+
+  @@map("PostGif")
+}
+
+model PostLike {
+  id        String   @id @default(cuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([postId, userId])
+  @@map("PostLike")
+}
+
+model PostBookmark {
+  id        String   @id @default(cuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([postId, userId])
+  @@map("PostBookmark")
+}
+
+model Comment {
+  id           String         @id @default(cuid())
+  postId       String
+  post         Post           @relation(fields: [postId], references: [id])
+  userId       String
+  user         User           @relation(fields: [userId], references: [id])
+  parentId     String?
+  parent       Comment?       @relation("CommentReplies", fields: [parentId], references: [id])
+  replies      Comment[]      @relation("CommentReplies")
+  content      String         @db.Text
+  likes        CommentLike[]
+  createdAt    DateTime       @default(now())
+  Notification Notification[]
+
+  @@map("Comment")
+}
+
+model CommentLike {
+  id        String   @id @default(cuid())
+  commentId String
+  comment   Comment  @relation(fields: [commentId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([commentId, userId])
+  @@map("CommentLike")
+}
+
+//
 // ---------- NOTIFICACIONES ----------
 //
 
@@ -157,22 +327,31 @@ model NotificationTypeTranslation {
 }
 
 model Notification {
-  id         String   @id @default(cuid())
+  id String @id @default(cuid())
 
-  typeId     String
-  type       NotificationType @relation(fields: [typeId], references: [id])
+  typeId String
+  type   NotificationType @relation(fields: [typeId], references: [id])
 
-  message    String
-  isRead     Boolean  @default(false)
+  message String
+  isRead  Boolean @default(false)
 
-  userId     String
-  user       User     @relation("ReceivedNotifications", fields: [userId], references: [id])
+  userId String
+  user   User   @relation("ReceivedNotifications", fields: [userId], references: [id])
 
   fromUserId String
-  fromUser   User     @relation("NotificationFromUser", fields: [fromUserId], references: [id])
+  fromUser   User   @relation("NotificationFromUser", fields: [fromUserId], references: [id])
 
-  createdAt  DateTime @default(now())
-  metadata   Json
+  storyId String?
+  story   Story?  @relation(fields: [storyId], references: [id])
+
+  postId String?
+  post   Post?   @relation(fields: [postId], references: [id])
+
+  commentId String?
+  comment   Comment? @relation(fields: [commentId], references: [id])
+
+  createdAt DateTime @default(now())
+  metadata  Json
 
   @@map("Notification")
 }

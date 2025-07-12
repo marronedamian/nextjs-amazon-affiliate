@@ -8,6 +8,7 @@ import Footer from "@/components/Layout/Footer";
 import BottomNav from "@/components/Navigation/BottomNav";
 import { useSession } from "next-auth/react";
 import { ConversationProvider } from "@/context/ConversationContext";
+import { Toaster } from "react-hot-toast";
 import "@/app/globals.css";
 
 export default function LangLayout({
@@ -28,13 +29,11 @@ export default function LangLayout({
             <Header />
             <main className="flex-grow">{children}</main>
             <Footer />
-
-            {isLoggedIn && (
-              <BottomNav />
-            )}
+            {isLoggedIn && <BottomNav />}
+            <Toaster position="top-center" /> 
           </I18nProvider>
         </ConversationProvider>
       </body>
-    </html >
+    </html>
   );
 }

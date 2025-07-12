@@ -10,10 +10,12 @@ import { getIO } from "@/lib/socket";
 import { useConversation } from "@/context/ConversationContext";
 
 export default function ChatView({
+    t,
     conversationId,
     participant,
     onBack,
 }: {
+    t: any;
     conversationId: string;
     participant: { id: number; name: string; image: string; username: string };
     onBack: () => void;
@@ -74,6 +76,7 @@ export default function ChatView({
     return (
         <>
             <ChatHeader
+                t={t}
                 name={participant.name}
                 avatar={participant.image}
                 username={participant.username}
@@ -87,6 +90,7 @@ export default function ChatView({
                 />
             </div>
             <ChatInput
+                t={t}
                 conversationId={conversationId}
                 receiverId={String(participant.id)}
                 sendMessage={sendMessage}

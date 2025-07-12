@@ -4,12 +4,8 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-
-interface Message {
-    id: string;
-    content: string;
-    createdAt: string;
-}
+import type { Message } from "@/types/messages.types";
+import * as Tooltip from "@radix-ui/react-tooltip";
 
 export default function MessageBubble({
     messages,
@@ -20,17 +16,14 @@ export default function MessageBubble({
     isOwn: boolean;
     avatarUrl?: string;
 }) {
-    const formattedTime = format(
-        new Date(messages[messages.length - 1].createdAt),
-        "HH:mm",
-        { locale: es }
-    );
+    const lastMessage = messages[messages.length - 1];
+    const formattedTime = format(new Date(lastMessage.createdAt), "HH:mm", { locale: es });
+    const fullTime = format(new Date(lastMessage.createdAt), "PPPPp", { locale: es });
 
     const getBubbleClasses = (index: number, length: number): string => {
-        const base =
-            isOwn
-                ? "bg-gradient-to-br from-blue-500 to-indigo-500 text-white self-end"
-                : "bg-white/10 text-white self-start";
+        const base = isOwn
+            ? "bg-gradient-to-br from-blue-500 to-indigo-500 text-white self-end"
+            : "bg-white/10 text-white self-start";
 
         const roundBase = "rounded-2xl";
 
@@ -39,12 +32,13 @@ export default function MessageBubble({
         }
 
         if (index === 0) {
-            return `${base} ${roundBase} ${isOwn ? "rounded-br-none" : "rounded-bl-none"
-                }`;
+            return `${base} ${roundBase} ${isOwn ? "rounded-br-none" : "rounded-bl-none"}`;
         }
 
         if (index > 0 && index < length - 1) {
-            return `${base} ${roundBase} ${isOwn ? "rounded-tr-none rounded-br-none" : "rounded-tl-none rounded-bl-none"
+            return `${base} ${roundBase} ${isOwn
+                ? "rounded-tr-none rounded-br-none"
+                : "rounded-tl-none rounded-bl-none"
                 }`;
         }
 
@@ -53,7 +47,6 @@ export default function MessageBubble({
 
     return (
         <div className={`flex items-start gap-2 ${isOwn ? "justify-end" : "justify-start"}`}>
-            {/* ✅ Avatar SOLO para el primer mensaje si NO es propio */}
             {!isOwn && avatarUrl && (
                 <Image
                     src={avatarUrl}
@@ -71,16 +64,30 @@ export default function MessageBubble({
                         initial={{ opacity: 0, y: 6 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.2 }}
-                        className={`
-              w-fit px-4 py-2 text-sm leading-snug break-words whitespace-pre-wrap
-              ${getBubbleClasses(index, messages.length)}
-            `}
+                        className={`w-fit px-4 py-2 text-sm leading-snug break-words whitespace-pre-wrap ${getBubbleClasses(index, messages.length)}`}
                     >
                         {msg.content}
+
                         {index === messages.length - 1 && (
-                            <span className="block text-[10px] text-white/50 text-right mt-1">
-                                {formattedTime}
-                            </span>
+                            <Tooltip.Provider delayDuration={100}>
+                                <Tooltip.Root>
+                                    <Tooltip.Trigger asChild>
+                                        <span className="block text-[10px] text-white/50 text-right mt-1 cursor-default">
+                                            {formattedTime}
+                                        </span>
+                                    </Tooltip.Trigger>
+                                    <Tooltip.Portal>
+                                        <Tooltip.Content
+                                            side="top"
+                                            sideOffset={6}
+                                            className="z-50 px-2 py-1 text-xs text-white bg-black rounded shadow-sm animate-fade-in"
+                                        >
+                                            {fullTime}
+                                            <Tooltip.Arrow className="fill-black" />
+                                        </Tooltip.Content>
+                                    </Tooltip.Portal>
+                                </Tooltip.Root>
+                            </Tooltip.Provider>
                         )}
                     </motion.div>
                 ))}

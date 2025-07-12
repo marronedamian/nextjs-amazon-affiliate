@@ -14,7 +14,7 @@ export default function useUnreadNotificationsSocket(userId: string) {
 
     const fetchUnread = async () => {
       try {
-        const res = await fetch("/api/notifications/unread-count");
+        const res = await fetch("/api/notifications/unread");
         const data = await res.json();
         setUnreadCount(data.count);
       } catch (error) {
@@ -35,8 +35,13 @@ export default function useUnreadNotificationsSocket(userId: string) {
       }
     });
 
+    socket.on("notification:removed", () => {
+      setUnreadCount((prev) => Math.max(prev - 1, 0));
+    });
+
     return () => {
       socket.off("notification:new");
+      socket.off("notification:removed");
       socket.disconnect();
     };
   }, [userId, pathname]);

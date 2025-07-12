@@ -7,8 +7,9 @@ import Image from "next/image";
 import LiquidGlassWrapper from "@/components/Shared/LiquidGlassWrapper";
 import Background from "../Shared/Background";
 import { useChatStore } from "@/lib/stores/chatStore";
-import { useFollow } from "@/hooks/follows/useFollow";
+import { useTranslation } from "next-i18next";
 import { FollowButton } from "@/components/Follow/FollowButton";
+import { LogOut } from "lucide-react";
 
 interface UserCardProps {
     session: any;
@@ -16,12 +17,14 @@ interface UserCardProps {
     profileUser: {
         id: string;
         name: string | null;
+        username: string | null;
         email: string | null;
         image: string | null;
     };
 }
 
 export default function UserCard({ session, isOwner = false, profileUser }: UserCardProps) {
+    const { t } = useTranslation("common");
     const router = useRouter();
     const pathname = usePathname();
     const locale = pathname?.split("/")[1] || "en";
@@ -46,8 +49,6 @@ export default function UserCard({ session, isOwner = false, profileUser }: User
         fetchStats();
     }, [profileUser.id]);
 
-    const { isFollowing, toggleFollow } = useFollow(profileUser.id, fetchStats);
-
     const handleStartConversation = async () => {
         const res = await fetch("/api/messages/create", {
             method: "POST",
@@ -60,6 +61,7 @@ export default function UserCard({ session, isOwner = false, profileUser }: User
             setConversation(data.conversationId, {
                 id: profileUser.id,
                 name: profileUser.name,
+                username: profileUser.username,
                 image: profileUser.image,
             });
             router.push(`/${locale}/messages`);
@@ -89,51 +91,45 @@ export default function UserCard({ session, isOwner = false, profileUser }: User
 
                     <h1 className="text-2xl font-bold mt-2">{profileUser.name}</h1>
                     <p className="text-sm text-gray-300 mb-4">{profileUser.email}</p>
-                    <p className="text-sm text-gray-400">
-                        Amazon Affiliate User
-                        <br />
-                        Connected with Google
-                    </p>
 
                     <div className="flex justify-center gap-10 mt-6 text-sm text-gray-100">
                         <div>
                             <div className="text-xl font-bold">{stats.followers}</div>
-                            <div>Seguidores</div>
+                            <div>{t("profile.followers")}</div>
                         </div>
                         <div>
                             <div className="text-xl font-bold">{stats.following}</div>
-                            <div>Siguiendo</div>
+                            <div>{t("profile.following")}</div>
                         </div>
                     </div>
 
                     <div className="mt-10 flex flex-col md:flex-row justify-center gap-4">
                         {!isOwner && (
                             <>
+                                {/* Follow Button */}
                                 <FollowButton userId={profileUser.id} onToggle={fetchStats} />
 
-                                <LiquidGlassWrapper className="rounded-full cursor-pointer px-4 py-2 border border-white/10 bg-purple-500/10 backdrop-blur-md hover:scale-105 transition">
-                                    <div
-                                        onClick={handleStartConversation}
-                                        className="flex items-center gap-2 text-sm text-purple-300 font-semibold"
-                                    >
-                                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                            <path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H6l-4 4V5z" />
-                                        </svg>
-                                        Message
-                                    </div>
-                                </LiquidGlassWrapper>
+                                {/* Message Button */}
+                                <button
+                                    onClick={handleStartConversation}
+                                    className="inline-flex items-center gap-2 px-6 py-2.5 bg-white/10 backdrop-blur-2xl border border-purple-500 hover:bg-purple-600/30 text-purple-300 hover:text-white font-semibold rounded-full transition-all duration-300 transform hover:scale-110 shadow-xl cursor-pointer"
+                                >
+                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H6l-4 4V5z" />
+                                    </svg>
+                                    {t("global.message")}
+                                </button>
                             </>
                         )}
 
                         {isOwner && (
-                            <LiquidGlassWrapper className="mt-5 inline-flex items-center rounded-full border border-white/10 bg-red-500/10 backdrop-blur-md hover:scale-105 transition">
-                                <div
-                                    onClick={() => signOut({ callbackUrl: "/" })}
-                                    className="text-sm text-red-300 font-semibold px-5 py-2 cursor-pointer"
-                                >
-                                    Cerrar sesión
-                                </div>
-                            </LiquidGlassWrapper>
+                            <button
+                                onClick={() => signOut({ callbackUrl: "/" })}
+                                className="inline-flex items-center gap-2 px-6 py-2.5 bg-white/10 backdrop-blur-2xl border border-red-500 hover:bg-red-600/30 text-red-300 hover:text-white font-semibold rounded-full transition-all duration-300 transform hover:scale-105 shadow-xl cursor-pointer text-sm"
+                            >
+                                <LogOut className="w-4 h-4" />
+                                {t("global.logout")}
+                            </button>
                         )}
                     </div>
                 </LiquidGlassWrapper>

@@ -2,50 +2,55 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import Image from "next/image";
-import Picker, { EmojiClickData } from "emoji-picker-react";
+import { toast } from "react-toastify";
+import type { Story } from "@/types/story.types";
+import { EmojiClickData } from "emoji-picker-react";
 
-interface Story {
-  name: string;
-  avatarUrl: string;
-  images: string[];
-  seen: boolean[];
-}
+import StoryHeader from "./FullScreen/StoryHeader";
+import StoryImage from "./FullScreen/StoryImage";
+import StoryProgressBar from "./FullScreen/StoryProgressBar";
+import StoryNavigation from "./FullScreen/StoryNavigation";
+import StoryCommentBox from "./FullScreen/StoryCommentBox";
 
-interface FullscreenStoryProps {
+interface Props {
+  t: any;
   stories: Story[];
   initialIndex: number;
   onClose: () => void;
-  onStoryChange: (storyIndex: number, imageIndex: number) => void;
+  onMarkImageSeen: (storyIndex: number, imageIndex: number) => void;
 }
 
 export default function FullscreenStory({
+  t,
   stories,
   initialIndex,
   onClose,
-  onStoryChange,
-}: FullscreenStoryProps) {
+  onMarkImageSeen,
+}: Props) {
   const [currentStoryIndex, setCurrentStoryIndex] = useState(initialIndex);
-  const firstUnseenImageIndex = stories[initialIndex].seen.findIndex(
-    (seen) => !seen
+  const firstUnseen = stories[initialIndex]?.images.findIndex((img) => !img.seen);
+  const [currentImageIndex, setCurrentImageIndex] = useState(
+    firstUnseen !== -1 ? firstUnseen : 0
   );
-  const initialImageIndex =
-    firstUnseenImageIndex !== -1 ? firstUnseenImageIndex : 0;
-
-  const [currentImageIndex, setCurrentImageIndex] = useState(initialImageIndex);
   const [progress, setProgress] = useState(0);
   const [comment, setComment] = useState("");
   const [isPaused, setIsPaused] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [isImageLoading, setIsImageLoading] = useState(true);
+  const [isSending, setIsSending] = useState(false);
 
-  const emojiPickerRef = useRef<HTMLDivElement>(null);
-
-  const emojiList = ["😀", "😅", "😂", "🤣", "😊", "😍", "🥳", "😎", "🤩", "😇"];
   const randomEmoji = useRef(
-    emojiList[Math.floor(Math.random() * emojiList.length)]
+    ["😀", "😅", "😂", "🤣", "😊", "😍", "🥳", "😎", "🤩", "😇"][
+    Math.floor(Math.random() * 10)
+    ]
   ).current;
 
-  // Bloquear scroll del body mientras está montado
+  const markedImages = useRef<Set<string>>(new Set());
+  const markedStory = useRef<Set<string>>(new Set());
+
+  const currentStory = stories[currentStoryIndex];
+  const currentImg = currentStory?.images[currentImageIndex];
+
   useEffect(() => {
     document.body.style.overflow = "hidden";
     return () => {
@@ -53,207 +58,183 @@ export default function FullscreenStory({
     };
   }, []);
 
-  // Avanzar el progreso cada 60ms si no está en pausa
   useEffect(() => {
-    let timer: NodeJS.Timeout | null = null;
+    const shouldPause = isPaused || isImageLoading || showEmojiPicker || !currentImg;
+    if (shouldPause) return;
 
-    if (!isPaused) {
-      timer = setInterval(() => {
-        setProgress((prev) => prev + 1);
-      }, 60);
+    const timer = setInterval(() => setProgress((p) => p + 1), 60);
+    return () => clearInterval(timer);
+  }, [isPaused, isImageLoading, showEmojiPicker, currentImg]);
+
+  useEffect(() => {
+    if (!currentStory || !currentImg) return;
+
+    const imgKey = `${currentImg.storyId}_${currentImg.url}`;
+    if (!currentImg.seen && !markedImages.current.has(imgKey)) {
+      markedImages.current.add(imgKey);
+      currentStory.images[currentImageIndex].seen = true;
+      onMarkImageSeen(currentStoryIndex, currentImageIndex);
+      fetch("/api/stories/image-view", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          storyId: currentImg.storyId,
+          imageUrl: currentImg.url,
+        }),
+      });
     }
 
-    if (progress >= 100) {
-      handleNextImage();
+    const allSeen = currentStory.images.every(
+      (img) =>
+        img.seen ||
+        markedImages.current.has(`${currentStory.storyId}_${img.url}`)
+    );
+    const alreadyMarkedStory =
+      currentImg.fullySeen || markedStory.current.has(currentImg.storyId);
+
+    if (allSeen && !alreadyMarkedStory) {
+      markedStory.current.add(currentImg.storyId);
+      fetch("/api/stories/view", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ storyId: currentImg.storyId }),
+      });
     }
+  }, [currentImg?.url, currentStory?.storyId]);
 
-    return () => {
-      if (timer) clearInterval(timer);
-    };
-  }, [progress, isPaused]);
-
-  // Marcar imagen como vista
   useEffect(() => {
-    if (!stories[currentStoryIndex].seen[currentImageIndex]) {
-      const updatedStories = [...stories];
-      updatedStories[currentStoryIndex].seen[currentImageIndex] = true;
-      onStoryChange(currentStoryIndex, currentImageIndex);
-    }
-  }, [currentImageIndex]);
-
-  // Cerrar picker al hacer click fuera
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        emojiPickerRef.current &&
-        !emojiPickerRef.current.contains(event.target as Node)
-      ) {
-        setShowEmojiPicker(false);
-        setIsPaused(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
+    if (!currentStory || !currentImg) return;
+    if (progress >= 100) handleNextImage();
+  }, [progress]);
 
   const handleNextImage = () => {
-    const story = stories[currentStoryIndex];
-    if (currentImageIndex < story.images.length - 1) {
-      setCurrentImageIndex((idx) => idx + 1);
-      setProgress(0);
+    if (currentImageIndex < currentStory.images.length - 1) {
+      setCurrentImageIndex((i) => i + 1);
     } else if (currentStoryIndex < stories.length - 1) {
-      const newStoryIndex = currentStoryIndex + 1;
-      setCurrentStoryIndex(newStoryIndex);
-      const nextUnseen = stories[newStoryIndex].seen.findIndex((s) => !s);
-      setCurrentImageIndex(nextUnseen !== -1 ? nextUnseen : 0);
-      setProgress(0);
-    } else {
-      onClose();
-    }
+      const next = currentStoryIndex + 1;
+      const first = stories[next].images.findIndex((img) => !img.seen);
+      setCurrentStoryIndex(next);
+      setCurrentImageIndex(first !== -1 ? first : 0);
+    } else onClose();
+    setProgress(0);
   };
 
   const handlePreviousImage = () => {
     if (currentImageIndex > 0) {
-      setCurrentImageIndex((idx) => idx - 1);
-      setProgress(0);
+      setCurrentImageIndex((i) => i - 1);
     } else if (currentStoryIndex > 0) {
-      const prevStoryIndex = currentStoryIndex - 1;
-      setCurrentStoryIndex(prevStoryIndex);
-      const lastIndex = stories[prevStoryIndex].images.length - 1;
-      const prevUnseen = stories[prevStoryIndex].seen.findIndex((s) => !s);
-      setCurrentImageIndex(prevUnseen !== -1 ? prevUnseen : lastIndex);
-      setProgress(0);
+      const prev = currentStoryIndex - 1;
+      const last = stories[prev].images.length - 1;
+      setCurrentStoryIndex(prev);
+      setCurrentImageIndex(last);
+    }
+    setProgress(0);
+  };
+
+  const handleSendComment = async () => {
+    if (!comment.trim() || !currentImg?.storyId || isSending) return;
+    setIsSending(true);
+    try {
+      const res = await fetch("/api/stories/comment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          storyId: currentImg.storyId,
+          message: comment.trim(),
+        }),
+      });
+
+      if (res.ok) {
+        setComment("");
+        setShowEmojiPicker(false);
+        // toast.success("Comentario enviado");
+      } else {
+        toast.error("Error al enviar comentario");
+      }
+    } catch (err) {
+      console.error("❌ Error al enviar comentario", err);
+      toast.error("Error al enviar comentario");
+    } finally {
+      setIsSending(false);
     }
   };
 
-  const handleMouseDown = () => setIsPaused(true);
-  const handleMouseUp = () => setIsPaused(false);
   const handleFocus = () => {
     setIsPaused(true);
     setShowEmojiPicker(false);
   };
-  const handleBlur = () => setIsPaused(false);
 
-  const toggleEmojiPicker = () => {
-    setShowEmojiPicker((prev) => {
-      setIsPaused(!prev);
-      return !prev;
-    });
+  const handleBlur = () => {
+    setIsPaused(false);
   };
 
-  const addEmoji = (emojiData: EmojiClickData) => {
-    if (emojiData.emoji) {
-      setComment((prev) => prev + emojiData.emoji);
-    }
-  };
-
-  const handleSendComment = () => {
-    if (comment.trim()) {
-      console.log("Comentario enviado:", comment);
-      setComment("");
-    }
-  };
-
-  return (
-    <motion.div
-      className="fixed inset-0 bg-black flex flex-col justify-between items-center z-[10000] pt-25 pb-30 pl-5 pr-5"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-    >
-      {/* Contenedor de imagen */}
-      <div
-        className="relative w-full h-full max-w-md flex flex-col justify-center"
-        onMouseDown={handleMouseDown}
-        onMouseUp={handleMouseUp}
-        onTouchStart={handleMouseDown}
-        onTouchEnd={handleMouseUp}
+  return currentStory ? (
+    <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/70 backdrop-blur-sm px-4 py-8">
+      <motion.div
+        className="fixed inset-0 z-[10000] flex flex-col justify-between items-center px-5 pt-24 pb-32 bg-black/70 backdrop-blur-lg border border-white/10"
+        initial={{ opacity: 0, y: 40, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 40, scale: 0.95 }}
+        transition={{ duration: 0.2 }}
       >
-        <Image
-          src={stories[currentStoryIndex].images[currentImageIndex]}
-          alt={stories[currentStoryIndex].name}
-          fill
-          className="object-cover rounded-tl-2xl rounded-tr-2xl"
-        />
+        {/* Degradado superior */}
+        <div className="absolute top-0 left-0 w-full h-48 bg-gradient-to-b from-black via-black/50 to-transparent z-10 pointer-events-none" />
 
-        {/* Barra de progreso */}
-        <div className="absolute top-4 left-0 right-0 flex space-x-1 px-2">
-          {stories[currentStoryIndex].images.map((_, idx) => (
-            <motion.div key={idx} className="flex-1 h-1 bg-gray-700 rounded-full">
-              <motion.div
-                className={`h-full ${idx <= currentImageIndex ? "bg-[#f6339a]" : "bg-[#e3e4e8]"
-                  } rounded-full`}
-                style={{
-                  width: `${idx === currentImageIndex ? progress : 100}%`,
-                }}
-                transition={{ duration: 0.1, ease: "linear" }}
-              />
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Header interno (avatar + nombre + cerrar) */}
-        <div className="absolute top-12 left-0 right-0 flex items-center justify-between px-4 z-20">
-          <div className="flex items-center space-x-2">
-            <div className="w-10 h-10 rounded-full overflow-hidden">
-              <Image
-                src={stories[currentStoryIndex].avatarUrl}
-                alt={stories[currentStoryIndex].name}
-                width={40}
-                height={40}
-                className="object-cover h-full"
-              />
+        <div
+          className="relative w-full h-full max-w-md flex flex-col justify-center"
+          onMouseDown={() => setIsPaused(true)}
+          onMouseUp={() => setIsPaused(false)}
+          onTouchStart={() => setIsPaused(true)}
+          onTouchEnd={() => setIsPaused(false)}
+        >
+          {currentImg?.url ? (
+            <StoryImage
+              url={currentImg.url}
+              alt={currentStory.name}
+              description={currentImg.description}
+              onLoad={() => setIsImageLoading(false)}
+              loading={isImageLoading}
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-black text-white">
+              {t("stories.noImage")}
             </div>
-            <span className="text-white font-semibold">
-              {stories[currentStoryIndex].name}
-            </span>
-          </div>
-          <button onClick={onClose} className="text-white text-3xl z-30">
-            ✕
-          </button>
+          )}
+          <StoryProgressBar
+            total={currentStory.images.length}
+            current={currentImageIndex}
+            progress={progress}
+          />
+          <StoryHeader
+            name={currentStory.name}
+            username={currentStory.username}
+            avatarUrl={currentStory.avatarUrl}
+            createdAt={currentImg?.createdAt ?? new Date()}
+            onClose={onClose}
+          />
+          <StoryNavigation
+            onPrevious={handlePreviousImage}
+            onNext={handleNextImage}
+          />
         </div>
 
-        {/* Navegación anterior/siguiente */}
-        <div className="absolute inset-y-0 left-4 flex items-center z-10 cursor-pointer">
-          <button onClick={handlePreviousImage} className="text-white text-4xl">
-            ‹
-          </button>
-        </div>
-        <div className="absolute inset-y-0 right-4 flex items-center z-10 cursor-pointer">
-          <button onClick={handleNextImage} className="text-white text-4xl">
-            ›
-          </button>
-        </div>
-      </div>
-
-      {/* Barra de comentarios */}
-      <div className="relative flex items-center p-4 bg-white w-full max-w-md shadow-md rounded-bl-2xl rounded-br-2xl">
-        <input
-          type="text"
-          value={comment}
-          onChange={(e) => setComment(e.target.value)}
-          placeholder="Type a message here..."
-          className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none text-black"
+        <StoryCommentBox
+          t={t}
+          comment={comment}
+          onChange={setComment}
           onFocus={handleFocus}
           onBlur={handleBlur}
+          onToggleEmoji={() => setShowEmojiPicker((prev) => !prev)}
+          showEmojiPicker={showEmojiPicker}
+          onEmojiClick={(emoji: EmojiClickData) =>
+            setComment((prev) => prev + emoji.emoji)
+          }
+          onSend={handleSendComment}
+          randomEmoji={randomEmoji}
+          loading={isSending}
+          placeholder={t("stories.commentPlaceholder")}
         />
-        <button onClick={toggleEmojiPicker} className="ml-2 text-2xl focus:outline-none">
-          {randomEmoji}
-        </button>
-        {showEmojiPicker && (
-          <div ref={emojiPickerRef} className="absolute bottom-16 right-0 z-50">
-            <Picker onEmojiClick={addEmoji} />
-          </div>
-        )}
-        <button
-          onClick={handleSendComment}
-          className="ml-2 px-4 py-2 bg-[#f6339a] text-white rounded-full focus:outline-none"
-        >
-          Send
-        </button>
-      </div>
-    </motion.div>
-  );
+      </motion.div>
+    </div>
+  ) : null;
 }
