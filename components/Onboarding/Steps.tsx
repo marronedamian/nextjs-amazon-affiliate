@@ -7,8 +7,10 @@ import { categories as allCategories } from "@/utils/amazon/categories";
 import LiquidGlassWrapper from "@/components/Shared/LiquidGlassWrapper";
 import ReactSlider from "react-slider";
 import Background from "../Shared/Background";
+import { useTranslation } from "next-i18next";
 
 export default function Steps({ session }: { session: any }) {
+    const { t } = useTranslation("common");
     const pathname = usePathname();
     const locale = pathname?.split("/")[1] || "en";
     const [step, setStep] = useState(1);
@@ -50,7 +52,7 @@ export default function Steps({ session }: { session: any }) {
                 <LiquidGlassWrapper className="relative max-w-xl w-full px-6 py-10 border border-white/10 rounded-3xl shadow-xl text-center overflow-visible">
                     {step === 1 && (
                         <>
-                            <h1 className="text-2xl font-bold mb-4">¿Qué te interesa?</h1>
+                            <h1 className="text-2xl font-bold mb-4">{t("onboarding.step1.title")}</h1>
                             <div className="flex flex-wrap gap-2 justify-center">
                                 {allCategories.map((c) => (
                                     <button
@@ -77,7 +79,7 @@ export default function Steps({ session }: { session: any }) {
                                         : "bg-pink-500/20 text-pink-300 hover:bg-pink-500/30 cursor-pointer"
                                         }`}
                                 >
-                                    Siguiente
+                                    {t("onboarding.next")}
                                 </button>
                             </div>
                         </>
@@ -85,7 +87,9 @@ export default function Steps({ session }: { session: any }) {
 
                     {step === 2 && (
                         <>
-                            <h1 className="text-2xl font-bold mb-6 text-center">¿Qué rango de precios prefieres?</h1>
+                            <h1 className="text-2xl font-bold mb-6 text-center">
+                                {t("onboarding.step2.title")}
+                            </h1>
                             <div className="flex flex-col items-center gap-6">
                                 <div className="text-3xl font-semibold text-white">
                                     ${priceRange[0]} - ${priceRange[1]}
@@ -95,7 +99,8 @@ export default function Steps({ session }: { session: any }) {
                                     className="w-full py-6 h-10 flex items-center"
                                     thumbClassName="w-5 h-5 rounded-full bg-pink-400 border-2 border-white/40 cursor-pointer"
                                     renderTrack={(props, state) => {
-                                        const baseClass = "h-2 rounded-full top-1/2 transform -translate-y-1/2";
+                                        const baseClass =
+                                            "h-2 rounded-full top-1/2 transform -translate-y-1/2";
                                         const trackIndex = state.index; // 0 = antes, 1 = entre, 2 = después
 
                                         const bgColor =
@@ -103,13 +108,17 @@ export default function Steps({ session }: { session: any }) {
                                                 ? "bg-pink-300/30" // solo el rango entre los thumbs
                                                 : "bg-white/10";
 
-                                        return <div {...props} className={`${bgColor} ${baseClass}`} />;
+                                        return (
+                                            <div {...props} className={`${bgColor} ${baseClass}`} />
+                                        );
                                     }}
                                     min={0}
                                     max={10000}
                                     step={50}
                                     value={priceRange}
-                                    onChange={(values: number[]) => setPriceRange(values as [number, number])}
+                                    onChange={(values: number[]) =>
+                                        setPriceRange(values as [number, number])
+                                    }
                                     pearling
                                     minDistance={50}
                                 />
@@ -132,13 +141,13 @@ export default function Steps({ session }: { session: any }) {
                                     onClick={() => setStep(1)}
                                     className="cursor-pointer px-6 py-2 bg-white/10 text-white rounded-full hover:bg-white/20 transition"
                                 >
-                                    Atrás
+                                    {t("onboarding.back")}
                                 </button>
                                 <button
                                     onClick={handleSubmit}
                                     className="cursor-pointer px-6 py-2 bg-pink-500/20 text-pink-300 rounded-full hover:bg-pink-500/30 transition"
                                 >
-                                    Finalizar
+                                    {t("onboarding.finish")}
                                 </button>
                             </div>
                         </>

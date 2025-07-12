@@ -83,6 +83,18 @@
     "followers": "Followers",
     "following": "Following"
   },
+  "onboarding": {
+    "step1": {
+      "title": "Choose your favorite categories"
+    },
+    "step2": {
+      "title": "What price range do you prefer?"
+    },
+    "skip": "Skip",
+    "back": "Back",
+    "next": "Next",
+    "finish": "Finish"
+  },
   "posts": {
     "newPosts_one": "View {{count}} new post",
     "newPosts_other": "View {{count}} new posts",
