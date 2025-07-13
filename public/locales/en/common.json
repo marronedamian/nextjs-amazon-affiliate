@@ -105,6 +105,8 @@
       "title": "Create Post",
       "description": "Write something interesting...",
       "placeholder": "Write your post here...",
+      "imageSizeError": "Each image must be smaller than 4MB.",
+      "imageLimitError": "You can only upload a maximum of 4 images.",
       "loadingLink": "Loading link...",
       "publish": "Publish",
       "publishing": "Publishing...",

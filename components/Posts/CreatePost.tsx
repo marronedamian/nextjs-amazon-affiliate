@@ -39,6 +39,7 @@ async function fetchLinkPreview(url: string) {
 }
 
 export default function CreatePost({ t }: { t: any }) {
+    const [imageError, setImageError] = useState<string | null>(null);
     const [rawContent, setRawContent] = useState("");
     const [displayContent, setDisplayContent] = useState("");
     const { uploadImages, isUploading } = useImageUploader();
@@ -177,9 +178,38 @@ export default function CreatePost({ t }: { t: any }) {
                             selectedGifs={selectedGifs}
                             handleImageUpload={(e: any) => {
                                 if (!e.target.files) return;
-                                setSelectedImages((prev: any) => [...prev, ...Array.from(e.target.files)]);
+
+                                const files = Array.from(e.target.files);
+
+                                const oversized = files.filter((f: any) => f.size > 4 * 1024 * 1024);
+                                if (oversized.length > 0) {
+                                    setImageError(t("posts.create.imageSizeError"));
+                                    return;
+                                }
+
+                                if (selectedImages.length + files.length > 4) {
+                                    setImageError(t("posts.create.imageLimitError"));
+                                    return;
+                                }
+
+                                setSelectedImages((prev: any) => [...prev, ...files]);
+                                setImageError(null);
                             }}
                         />
+
+                        {imageError && (
+                            <div className="relative w-full bg-white/5 border border-[#f6339a]/40 rounded-xl backdrop-blur-md mb-4 overflow-hidden px-4 py-3 mt-3">
+                                <div className="flex flex-col items-center justify-center text-center relative">
+                                    <p className="text-white/80 text-sm leading-snug">{imageError}</p>
+                                </div>
+                                <button
+                                    onClick={() => setImageError(null)}
+                                    className="absolute top-2 right-2 text-white/60 hover:text-white text-xs cursor-pointer"
+                                >
+                                    ✖
+                                </button>
+                            </div>
+                        )}
 
                         <Pickers
                             showEmojiPicker={showEmojiPicker}

@@ -105,6 +105,8 @@
       "title": "Crear publicación",
       "description": "Escribe algo interesante...",
       "placeholder": "Escribe tu publicación aquí...",
+      "imageSizeError": "Cada imagen debe pesar menos de 4MB.",
+      "imageLimitError": "Solo puedes subir un máximo de 4 imágenes.",
       "loadingLink": "Cargando enlace...",
       "publish": "Publicar",
       "publishing": "Publicando...",
