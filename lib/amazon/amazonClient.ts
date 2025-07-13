@@ -1,47 +1,54 @@
-// lib/amazonClient.ts
-require("dotenv").config();
-const AmazonPaapi = require("amazon-paapi");
+const amazonPaapi = require("amazon-paapi");
+import "dotenv/config";
 
 const commonParams = {
-  accessKey: process.env.AMAZON_ACCESS_KEY,
-  secretKey: process.env.AMAZON_SECRET_KEY,
-  partnerTag: process.env.AMAZON_ASSOCIATE_TAG, // Associate Tag
-  partnerType: "Associates",
-  marketplace: "www.amazon.com", // usa 'www.amazon.es' si es para España
+  AccessKey: process.env.AMAZON_ACCESS_KEY!,
+  SecretKey: process.env.AMAZON_SECRET_KEY!,
+  PartnerTag: process.env.AMAZON_ASSOCIATE_TAG!,
+  PartnerType: "Associates",
+  Marketplace: "www.amazon.com",
 };
 
-async function fetchAmazonProducts(count = 5) {
-  const searchItemsParams = {
-    ...commonParams,
-    Keywords: "electronics", // puedes cambiarlo o hacerlo dinámico
+export async function fetchAmazonProducts(
+  keywords: string,
+  lang: string,
+  page: number = 1
+) {
+  const requestParams = {
+    Keywords: keywords,
     SearchIndex: "All",
+    ItemCount: 5,
+    ItemPage: page,
     Resources: [
       "ItemInfo.Title",
-      "Images.Primary.Medium",
       "ItemInfo.Features",
-      "ItemInfo.ProductInfo",
+      "Images.Primary.HighRes",
+      "Images.Primary.Large",
+      "Images.Primary.Medium",
       "Offers.Listings.Price",
     ],
   };
 
   try {
-    const data = await AmazonPaapi.SearchItems(searchItemsParams);
+    const result = await amazonPaapi.SearchItems(commonParams, requestParams);
 
-    const items = data.SearchResult?.Items || [];
+    return (
+      result.SearchResult?.Items?.map((item: any) => {
+        const highRes = item.Images?.Primary?.HighRes?.URL;
+        const large = item.Images?.Primary?.Large?.URL;
+        const medium = item.Images?.Primary?.Medium?.URL;
 
-    // Limitar a 'count'
-    return items.slice(0, count).map((item: any) => ({
-      id: item?.ASIN ?? "",
-      title: item?.ItemInfo?.Title?.DisplayValue ?? "Producto sin título",
-      description:
-        (item?.ItemInfo?.Features?.DisplayValues || []).join(", ") ||
-        "Sin descripción",
-      imageUrl: item?.Images?.Primary?.Medium?.URL ?? "",
-    }));
-  } catch (error) {
-    console.error("Error fetching Amazon products:", error);
+        return {
+          id: item.ASIN,
+          title: item.ItemInfo?.Title?.DisplayValue ?? "",
+          description: item.ItemInfo?.Features?.DisplayValues?.join("\n") ?? "",
+          imageUrl: highRes || large || medium || "",
+          url: item.DetailPageURL ?? "",
+        };
+      }) ?? []
+    );
+  } catch (err) {
+    console.error("❌ Error al buscar productos de Amazon:", err);
     return [];
   }
 }
-
-module.exports = { fetchAmazonProducts };

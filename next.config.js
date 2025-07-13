@@ -9,7 +9,8 @@ const nextConfig = {
             'via.placeholder.com', 
             'm.media-amazon.com', 
             'lh3.googleusercontent.com',
-            'media.tenor.com'
+            'media.tenor.com',
+            'source.unsplash.com'
         ], // permitimos imágenes
     },
 };

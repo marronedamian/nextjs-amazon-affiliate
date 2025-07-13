@@ -30,7 +30,7 @@
     "daily_title": "Actualizaciones Diarias",
     "daily_desc": "Nuevos productos y tendencias agregados cada 24 horas",
     "affiliate_title": "Afiliado Certificado",
-    "affiliate_desc": "Enlaces seguros con comisiones oficiales de Amazon Associates"
+    "affiliate_desc": "Enlaces seguros con comisiones oficiales de BestPickr.store"
   },
   "how": {
     "title": "¿Cómo funciona?",
@@ -68,9 +68,12 @@
     "button": "Explorá el blog"
   },
   "blog": {
-    "title": "Artículos Recomendados",
-    "searchPlaceholder": "Buscar articulos...",
-    "filters": "Filtros"
+    "title": "Blog de Recomendaciones",
+    "searchPlaceholder": "Buscar artículos...",
+    "filters": "Filtros",
+    "all": "Todos",
+    "loadMore": "Cargar más",
+    "noResults": "No se encontraron artículos."
   },
   "login": {
     "welcome": "¡Bienvenido de nuevo!",

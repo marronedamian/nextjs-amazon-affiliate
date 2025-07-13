@@ -6,8 +6,8 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://bestpickr.store";
 export function generateSiteMetadata(lang: "es" | "en"): Metadata {
   const isEs = lang === "es";
   const title = isEs
-    ? "Artículos Recomendados | Amazon Affiliate Blog"
-    : "Recommended Articles | Amazon Affiliate Blog";
+    ? "Artículos Recomendados | BestPickr.store"
+    : "Recommended Articles | BestPickr.store";
   const description = isEs
     ? "Encuentra los mejores productos recomendados por IA en Amazon."
     : "Find the best Amazon recommended products daily using AI.";
@@ -19,7 +19,7 @@ export function generateSiteMetadata(lang: "es" | "en"): Metadata {
       title,
       description,
       url: `${SITE_URL}/${lang}/blog`,
-      siteName: "Amazon Affiliate Blog",
+      siteName: "BestPickr.store",
       locale: isEs ? "es_ES" : "en_US",
       type: "website",
     },
@@ -44,7 +44,7 @@ export function generatePostMetadata(post: Post): Metadata {
       title,
       description,
       url: `${SITE_URL}/${lang}/blog/${slug}`,
-      siteName: "Amazon Affiliate Blog",
+      siteName: "BestPickr.store",
       images: [
         {
           url: `${SITE_URL}${thumbnail}`,

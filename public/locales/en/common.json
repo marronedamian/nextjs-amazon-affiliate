@@ -30,7 +30,7 @@
     "daily_title": "Daily Updates",
     "daily_desc": "New products and trends added every 24 hours",
     "affiliate_title": "Certified Affiliate",
-    "affiliate_desc": "Secure links with official Amazon Associates commissions"
+    "affiliate_desc": "Secure links with official BestPickr.store commissions"
   },
   "how": {
     "title": "How It Works",
@@ -70,7 +70,10 @@
   "blog": {
     "title": "Recommended Articles",
     "searchPlaceholder": "Search articles...",
-    "filters": "Filters"
+    "filters": "Filters",
+    "all": "All",
+    "loadMore": "Load more articles",
+    "noResults": "No articles found."
   },
   "login": {
     "welcome": "Welcome back!",

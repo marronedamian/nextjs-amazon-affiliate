@@ -18,7 +18,8 @@ export default function LanguageSwitcher() {
     const switchTo = (lang: string) => {
         if (isBlog && slug) {
             const translatedSlug = getTranslatedSlug(slug, currentLang, lang);
-            router.push(`/${lang}/blog/${translatedSlug}`);
+            // router.push(`/${lang}/blog/${translatedSlug}`);
+            router.push(`/${lang}/blog`);
         } else {
             const restOfPath = segments.slice(1).join("/");
             router.push(`/${lang}/${restOfPath}`);

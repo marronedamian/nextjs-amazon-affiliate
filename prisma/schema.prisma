@@ -9,6 +9,23 @@ datasource db {
 }
 
 //
+// ---------- ARTICULOS ----------
+//
+
+model Article {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  content     String   @db.LongText
+  description String
+  language    String
+  imageUrl    String   @db.Text
+  amazonLink  String
+  products    Json
+  createdAt   DateTime @default(now())
+}
+
+//
 // ---------- MODELOS PRINCIPALES ----------
 //
 

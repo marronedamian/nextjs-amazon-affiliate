@@ -45,7 +45,7 @@ export default function Header() {
                         className="group text-xl md:text-2xl font-bold text-white tracking-tight"
                     >
                         <span className="group-hover:text-pink-400 transition-colors">
-                            <span className="text-pink-500">Amazon</span> Affiliate
+                            <span className="text-pink-500">Best</span>Pickr
                         </span>
                     </Link>
 
