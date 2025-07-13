@@ -4,19 +4,23 @@ import FeedPost from "./FeedPost";
 import { usePosts } from "@/hooks/posts/usePosts";
 import CreatePost from "../Posts/CreatePost";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSession } from "next-auth/react";
 
 export default function Feed({ t }: { t: any }) {
     const { posts, newCount, showNewPosts } = usePosts();
+    const { status } = useSession();
 
     const text = t("posts.newPosts", { count: newCount });
 
     return (
         <div className="max-w-7xl mx-auto mt-0 px-8 xl:px-0">
             <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-3 gap-4 space-y-4">
-                {/* Create Post */}
-                <div className="break-inside-avoid relative z-10">
-                    <CreatePost t={t} />
-                </div>
+                {/* Crear post solo si está autenticado */}
+                {status === "authenticated" && (
+                    <div className="break-inside-avoid relative z-10">
+                        <CreatePost t={t} />
+                    </div>
+                )}
 
                 {/* Botón de nuevos posts */}
                 {newCount > 0 && (
@@ -39,7 +43,7 @@ export default function Feed({ t }: { t: any }) {
                     </div>
                 )}
 
-                {/* Posts */}
+                {/* Posts siempre visibles */}
                 <AnimatePresence>
                     {posts.map((post) => (
                         <motion.div

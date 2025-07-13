@@ -121,9 +121,7 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.id) return new Response("Unauthorized", { status: 401 });
-
-  const userId = session.user.id;
+  const userId = session?.user?.id;
 
   const posts = await db.post.findMany({
     orderBy: { createdAt: "desc" },
@@ -134,9 +132,9 @@ export async function GET(req: NextRequest) {
       likes: {
         include: { user: true },
       },
-      bookmarks: {
-        where: { userId },
-      },
+      bookmarks: userId
+        ? { where: { userId } }
+        : false,
       comments: {
         orderBy: { createdAt: "desc" },
         take: 3,
@@ -149,10 +147,12 @@ export async function GET(req: NextRequest) {
           },
         },
       },
-      reposts: {
-        where: { userId },
-        select: { userId: true },
-      },
+      reposts: userId
+        ? {
+            where: { userId },
+            select: { userId: true },
+          }
+        : false,
       repost: {
         include: {
           user: true,

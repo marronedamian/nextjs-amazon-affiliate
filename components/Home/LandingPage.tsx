@@ -10,16 +10,10 @@ import AOS from "aos";
 import "aos/dist/aos.css";
 import Background from "../Shared/Background";
 
-export default function LandingPage({ lang }: { lang: string }) {
+export default function LandingPage() {
     const { t } = useTranslation("common");
     const pathname = usePathname();
     const currentLang = pathname?.split("/")[1] || "en";
-
-    useEffect(() => {
-        if (lang !== i18n.language) {
-            i18n.changeLanguage(lang);
-        }
-    }, [lang]);
 
     useEffect(() => {
         AOS.init({ once: true, duration: 800, offset: 100, easing: 'ease-out-cubic' });

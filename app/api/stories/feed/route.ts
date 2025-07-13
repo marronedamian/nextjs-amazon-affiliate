@@ -5,10 +5,87 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   const session = await getServerSession(authOptions);
+
+  const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+  // ✅ Si NO hay sesión, solo historias globales sin datos de vistos
   if (!session?.user?.id) {
-    return new NextResponse("Unauthorized", { status: 401 });
+    const stories = await db.story.findMany({
+      where: {
+        isGlobal: true,
+        createdAt: {
+          gte: twentyFourHoursAgo,
+        },
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            image: true,
+          },
+        },
+        images: {
+          orderBy: { order: "asc" },
+          select: { url: true },
+        },
+      },
+      orderBy: {
+        createdAt: "asc",
+      },
+    });
+
+    const userStoriesMap = new Map<
+      string,
+      {
+        id: string;
+        name: string;
+        username: string;
+        avatarUrl: string;
+        stories: {
+          storyId: string;
+          images: string[];
+          seen: boolean[]; // todos en false
+          fullySeen: boolean; // siempre false
+          description: string;
+          createdAt: Date;
+        }[];
+      }
+    >();
+
+    for (const story of stories) {
+      const userKey = story.user.id;
+      const images = story.images.map((img) => img.url);
+      const seen = images.map(() => false);
+
+      const storyItem = {
+        storyId: story.id,
+        images,
+        seen,
+        description: story.description,
+        createdAt: story.createdAt,
+        fullySeen: false,
+      };
+
+      if (!userStoriesMap.has(userKey)) {
+        userStoriesMap.set(userKey, {
+          id: userKey,
+          name: story.user.name || "",
+          username: story.user.username || "",
+          avatarUrl: story.user.image || "",
+          stories: [storyItem],
+        });
+      } else {
+        userStoriesMap.get(userKey)!.stories.push(storyItem);
+      }
+    }
+
+    const groupedStories = Array.from(userStoriesMap.values());
+    return NextResponse.json(groupedStories);
   }
 
+  // ✅ Si hay sesión, sigue lógica original (historias propias, de seguidos y globales)
   const userId = session.user.id;
 
   const following = await db.follower.findMany({
@@ -17,8 +94,6 @@ export async function GET() {
   });
 
   const followingIds = following.map((f) => f.followingId);
-
-  const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
   const stories = await db.story.findMany({
     where: {

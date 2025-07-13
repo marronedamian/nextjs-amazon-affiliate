@@ -1,8 +1,7 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useEffect, useMemo, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import {
@@ -35,17 +34,22 @@ const BottomNav = () => {
 
     const [selected, setSelected] = useState("/");
 
-    const navItems = useMemo(
-        () =>
-            [
-                { icon: FaHome, route: "/", label: "Home" },
-                { icon: FaNewspaper, route: "/blog", label: "Blog" },
+    const navItems = useMemo(() => {
+        const items = [
+            { icon: FaHome, route: "/", label: "Home" },
+            { icon: FaNewspaper, route: "/blog", label: "Blog" },
+        ];
+
+        if (session?.user) {
+            items.push(
                 { icon: FaHeart, route: "/notifications", label: "Notifications" },
                 { icon: FaComments, route: "/messages", label: "Messages" },
-                { icon: FaUser, route: `/${username}`, label: "Profile" },
-            ] satisfies { icon: IconType; route: string; label: string }[],
-        [username]
-    );
+                { icon: FaUser, route: `/${username}`, label: "Profile" }
+            );
+        }
+
+        return items;
+    }, [session, username]);
 
     useEffect(() => {
         if (!pathname) return;

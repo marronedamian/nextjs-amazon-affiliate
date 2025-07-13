@@ -2,7 +2,7 @@ import { getToken } from "next-auth/jwt";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const PUBLIC_PATHS = ["/", "/blog", "/auth/login"];
+const PUBLIC_PATHS = ["/", "/landing", "/blog", "/auth/login"];
 
 function getLocale(pathname: string): string | null {
   const match = pathname.match(/^\/(es|en)(\/|$)/);

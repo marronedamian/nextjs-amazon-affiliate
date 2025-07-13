@@ -9,9 +9,13 @@ export default function HomeContent({ lang }: { lang: string }) {
 
     if (status === "loading") return null;
 
-    return status === "authenticated" ? (
-        <HomePage lang={lang} />
-    ) : (
-        <LandingPage lang={lang} />
-    );
+    return <HomePage lang={lang} />;
+
+    /*
+        return status === "authenticated" ? (
+            <HomePage lang={lang} />
+        ) : (
+            <LandingPage lang={lang} />
+        );
+    */
 }

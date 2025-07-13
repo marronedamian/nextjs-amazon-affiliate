@@ -15,5 +15,6 @@ export interface ImageWithStory {
   fullySeen: boolean;
   storyId: string;
   description?: string;
+  isGlobal?: string;
   createdAt?: Date | string;
 }

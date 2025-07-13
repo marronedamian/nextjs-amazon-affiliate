@@ -33,6 +33,7 @@ type StoryCarouselProps = {
 export default function StoryCarousel({
     t
 }: StoryCarouselProps) {
+    const { data: session, status } = useSession();
     const [stories, setStories] = useState<Story[]>([]);
     const [showFullscreen, setShowFullscreen] = useState(false);
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -104,62 +105,22 @@ export default function StoryCarousel({
 
     return (
         <>
-            <section className="pt-20 pb-2 px-8 text-center z-10 relative">
-                <div className="max-w-7xl mx-auto p-0 bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-lg">
-                    <motion.div
-                        className="flex space-x-4 p-4 overflow-x-auto w-full"
-                        initial="initial"
-                        animate="animate"
-                        exit="exit"
-                    >
+            {stories.length > 0 ? (
+                <section className="pt-20 pb-2 px-8 text-center z-10 relative">
+                    <div className="max-w-7xl mx-auto p-0 bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-lg">
                         <motion.div
-                            className="flex flex-col items-center cursor-pointer hover:scale-105 transition-transform"
-                            whileTap={{ scale: 0.9 }}
-                            custom={0}
-                            variants={storyVariants}
-                            onClick={() => setShowCreateModal(true)}
+                            className="flex space-x-4 p-4 overflow-x-auto w-full"
+                            initial="initial"
+                            animate="animate"
+                            exit="exit"
                         >
-                            <div className="relative w-16 h-16">
-                                <div className="absolute inset-0 flex justify-center items-center z-20">
-                                    <svg
-                                        width="80"
-                                        height="80"
-                                        viewBox="0 0 80 80"
-                                        className="absolute w-full h-full"
-                                        style={{ transform: "rotate(-90deg)" }}
-                                    >
-                                        <circle
-                                            cx="40"
-                                            cy="40"
-                                            r="36"
-                                            fill="none"
-                                            stroke="#f6339a"
-                                            strokeWidth="2"
-                                        />
-                                    </svg>
-                                </div>
-                                <div className="flex items-center justify-center w-16 h-16 rounded-full z-10 p-[5px]">
-                                    <div className="bg-gray-200 p-1 w-full h-full flex items-center justify-center rounded-full">
-                                        <span className="text-2xl text-[#f6339a]">+</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <span className="text-gray-300 mt-2">{t("stories.add")}</span>
-                        </motion.div>
-
-                        {stories.map((story, index) => {
-                            const coverImage =
-                                story.images.find((img) => !img.seen)?.url ??
-                                story.images[0].url;
-
-                            return (
+                            {status === "authenticated" && (
                                 <motion.div
-                                    key={index}
                                     className="flex flex-col items-center cursor-pointer hover:scale-105 transition-transform"
                                     whileTap={{ scale: 0.9 }}
-                                    custom={index + 1}
+                                    custom={0}
                                     variants={storyVariants}
-                                    onClick={() => openFullscreen(index)}
+                                    onClick={() => setShowCreateModal(true)}
                                 >
                                     <div className="relative w-16 h-16">
                                         <div className="absolute inset-0 flex justify-center items-center z-20">
@@ -170,47 +131,93 @@ export default function StoryCarousel({
                                                 className="absolute w-full h-full"
                                                 style={{ transform: "rotate(-90deg)" }}
                                             >
-                                                {story.images.map((img, i) => {
-                                                    const start = (i / story.images.length) * 360;
-                                                    const end = ((i + 1) / story.images.length) * 360;
-                                                    return (
-                                                        <circle
-                                                            key={i}
-                                                            cx="40"
-                                                            cy="40"
-                                                            r="36"
-                                                            fill="none"
-                                                            stroke={img.seen ? "#e3e4e8" : "#f6339a"}
-                                                            strokeWidth="2"
-                                                            strokeDasharray={`${((end - start) / 360) * Math.PI * 72
-                                                                } ${(1 - (end - start) / 360) * Math.PI * 72}`}
-                                                            strokeDashoffset={`-${(start / 360) * Math.PI * 72
-                                                                }`}
-                                                        />
-                                                    );
-                                                })}
+                                                <circle
+                                                    cx="40"
+                                                    cy="40"
+                                                    r="36"
+                                                    fill="none"
+                                                    stroke="#f6339a"
+                                                    strokeWidth="2"
+                                                />
                                             </svg>
                                         </div>
-                                        <Image
-                                            src={coverImage}
-                                            alt={story.name}
-                                            fill
-                                            className="object-cover rounded-full z-10 p-1"
-                                        />
+                                        <div className="flex items-center justify-center w-16 h-16 rounded-full z-10 p-[5px]">
+                                            <div className="bg-gray-200 p-1 w-full h-full flex items-center justify-center rounded-full">
+                                                <span className="text-2xl text-[#f6339a]">+</span>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <span className="text-gray-300 mt-2" title={story.name}>
-                                        {story.name.length > 8
-                                            ? story.name.slice(0, 8) + "…"
-                                            : story.name}
-                                    </span>
+                                    <span className="text-gray-300 mt-2">{t("stories.add")}</span>
                                 </motion.div>
-                            );
-                        })}
-                    </motion.div>
-                </div>
-            </section>
+                            )}
 
-            {showCreateModal && (
+                            {stories.map((story, index) => {
+                                const coverImage =
+                                    story.images.find((img) => !img.seen)?.url ??
+                                    story.images[0].url;
+
+                                return (
+                                    <motion.div
+                                        key={index}
+                                        className="flex flex-col items-center cursor-pointer hover:scale-105 transition-transform"
+                                        whileTap={{ scale: 0.9 }}
+                                        custom={index + 1}
+                                        variants={storyVariants}
+                                        onClick={() => openFullscreen(index)}
+                                    >
+                                        <div className="relative w-16 h-16">
+                                            <div className="absolute inset-0 flex justify-center items-center z-20">
+                                                <svg
+                                                    width="80"
+                                                    height="80"
+                                                    viewBox="0 0 80 80"
+                                                    className="absolute w-full h-full"
+                                                    style={{ transform: "rotate(-90deg)" }}
+                                                >
+                                                    {story.images.map((img, i) => {
+                                                        const start = (i / story.images.length) * 360;
+                                                        const end = ((i + 1) / story.images.length) * 360;
+                                                        return (
+                                                            <circle
+                                                                key={i}
+                                                                cx="40"
+                                                                cy="40"
+                                                                r="36"
+                                                                fill="none"
+                                                                stroke={img.seen ? "#e3e4e8" : "#f6339a"}
+                                                                strokeWidth="2"
+                                                                strokeDasharray={`${((end - start) / 360) * Math.PI * 72
+                                                                    } ${(1 - (end - start) / 360) * Math.PI * 72}`}
+                                                                strokeDashoffset={`-${(start / 360) * Math.PI * 72
+                                                                    }`}
+                                                            />
+                                                        );
+                                                    })}
+                                                </svg>
+                                            </div>
+                                            <Image
+                                                src={coverImage}
+                                                alt={story.name}
+                                                fill
+                                                className="object-cover rounded-full z-10 p-1"
+                                            />
+                                        </div>
+                                        <span className="text-gray-300 mt-2" title={story.name}>
+                                            {story.name.length > 8
+                                                ? story.name.slice(0, 8) + "…"
+                                                : story.name}
+                                        </span>
+                                    </motion.div>
+                                );
+                            })}
+                        </motion.div>
+                    </div>
+                </section>
+            ) : (
+                <section className="pt-20 pb-2 px-8 text-center z-10 relative"></section>
+            )}
+
+            {status === "authenticated" && showCreateModal && (
                 <StoryCreateModal
                     t={t}
                     onClose={() => setShowCreateModal(false)}

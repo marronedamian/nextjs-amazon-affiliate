@@ -20,7 +20,7 @@ export default function HomePage({ lang }: { lang: string }) {
 
     useEffect(() => {
         if (status === "unauthenticated") {
-            router.push(`/${lang}/auth/login`);
+            // router.push(`/${lang}/auth/login`);
         }
     }, [status, lang, router]);
 

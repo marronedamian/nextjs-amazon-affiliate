@@ -41,7 +41,7 @@ export default function Header() {
                 <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between relative">
                     {/* Logo */}
                     <Link
-                        href={`/${currentLang}`}
+                        href={`/${currentLang}/landing`}
                         className="group text-xl md:text-2xl font-bold text-white tracking-tight"
                     >
                         <span className="group-hover:text-pink-400 transition-colors">

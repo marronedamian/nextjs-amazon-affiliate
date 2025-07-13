@@ -95,6 +95,11 @@ export default function PostActions({
 
 
     const handleLike = async () => {
+        if (!session) {
+            router.push("/auth/login");
+            return;
+        }
+
         if (loadingLike) return;
         try {
             setLoadingLike(true);
@@ -128,6 +133,11 @@ export default function PostActions({
     };
 
     const handleRepost = async () => {
+        if (!session) {
+            router.push("/auth/login");
+            return;
+        }
+
         if (loadingRepost || isAuthor) return;
         try {
             setLoadingRepost(true);

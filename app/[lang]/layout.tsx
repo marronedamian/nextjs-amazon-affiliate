@@ -29,8 +29,8 @@ export default function LangLayout({
             <Header />
             <main className="flex-grow">{children}</main>
             <Footer />
-            {isLoggedIn && <BottomNav />}
-            <Toaster position="top-center" /> 
+            <BottomNav />
+            <Toaster position="top-center" />
           </I18nProvider>
         </ConversationProvider>
       </body>
