@@ -98,6 +98,11 @@
     "next": "Siguiente",
     "finish": "Finalizar"
   },
+  "categories": {
+    "title": "Categorías",
+    "select": "Seleccionar categoría",
+    "emptyCategory": "Sin categoría"
+  },
   "posts": {
     "newPosts_one": "Ver {{count}} nueva publicación",
     "newPosts_other": "Ver {{count}} nuevas publicaciones",

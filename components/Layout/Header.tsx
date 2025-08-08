@@ -38,11 +38,11 @@ export default function Header() {
                 rounded={false}
                 className="w-full border-b border-white/10 shadow-[inset_0_-1px_0_0_rgba(255,255,255,0.1)] transition-all duration-300"
             >
-                <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between relative">
-                    {/* Logo */}
+                <div className="max-w-7xl mx-auto px-6 py-3 flex items-center lg:justify-between justify-end relative">
+                    {/* Logo - Visible solo en desktop (lg y superiores) */}
                     <Link
                         href={`/${currentLang}/landing`}
-                        className="group text-xl md:text-2xl font-bold text-white tracking-tight"
+                        className="group text-xl md:text-2xl font-bold text-white tracking-tight hidden lg:inline-block"
                     >
                         <span className="group-hover:text-pink-400 transition-colors">
                             <span className="text-pink-500">Best</span>Pickr

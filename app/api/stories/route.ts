@@ -11,7 +11,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    const { images, description, isGlobal } = await req.json();
+    const { images, description, isGlobal, categoryId } = await req.json();
 
     if (
       !Array.isArray(images) ||
@@ -26,6 +26,7 @@ export async function POST(req: Request) {
         userId: session.user.id,
         description,
         isGlobal: Boolean(isGlobal),
+        categoryId: categoryId || null,
         images: {
           create: images.map((url: string, index: number) => ({
             url,
@@ -35,7 +36,6 @@ export async function POST(req: Request) {
       },
     });
 
-    // Emitimos el evento "new-story"
     const io = getIO();
     if (io) {
       io.emit("new-story", {

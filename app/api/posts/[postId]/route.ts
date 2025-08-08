@@ -16,6 +16,7 @@ export async function GET(
     where: { id: params.postId },
     include: {
       user: true,
+      category: true, // <- NUEVO
       images: true,
       gifs: true,
       mentions: true,
@@ -44,6 +45,7 @@ export async function GET(
       repost: {
         include: {
           user: true,
+          category: true,
           images: true,
           gifs: true,
           likes: {

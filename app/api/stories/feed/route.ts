@@ -1,14 +1,15 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
+  const lang = req.headers.get("x-lang") || "es";
 
   const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
-  // ✅ Si NO hay sesión, solo historias globales sin datos de vistos
+  // ✅ SIN sesión → solo historias públicas
   if (!session?.user?.id) {
     const stories = await db.story.findMany({
       where: {
@@ -30,10 +31,17 @@ export async function GET() {
           orderBy: { order: "asc" },
           select: { url: true },
         },
+        category: {
+          select: {
+            id: true,
+            emoji: true,
+            query: true,
+            label_es: true,
+            label_en: true,
+          },
+        },
       },
-      orderBy: {
-        createdAt: "asc",
-      },
+      orderBy: { createdAt: "asc" },
     });
 
     const userStoriesMap = new Map<
@@ -46,10 +54,16 @@ export async function GET() {
         stories: {
           storyId: string;
           images: string[];
-          seen: boolean[]; // todos en false
-          fullySeen: boolean; // siempre false
+          seen: boolean[];
+          fullySeen: boolean;
           description: string;
           createdAt: Date;
+          category: {
+            id: string;
+            name: string;
+            emoji: string;
+            query: string;
+          } | null;
         }[];
       }
     >();
@@ -66,6 +80,17 @@ export async function GET() {
         description: story.description,
         createdAt: story.createdAt,
         fullySeen: false,
+        category: story.category
+          ? {
+              id: story.category.id,
+              emoji: story.category.emoji,
+              query: story.category.query,
+              name:
+                lang === "en"
+                  ? story.category.label_en
+                  : story.category.label_es,
+            }
+          : null,
       };
 
       if (!userStoriesMap.has(userKey)) {
@@ -81,11 +106,10 @@ export async function GET() {
       }
     }
 
-    const groupedStories = Array.from(userStoriesMap.values());
-    return NextResponse.json(groupedStories);
+    return NextResponse.json(Array.from(userStoriesMap.values()));
   }
 
-  // ✅ Si hay sesión, sigue lógica original (historias propias, de seguidos y globales)
+  // ✅ CON sesión → historias propias, de seguidos y globales
   const userId = session.user.id;
 
   const following = await db.follower.findMany({
@@ -115,10 +139,17 @@ export async function GET() {
         orderBy: { order: "asc" },
         select: { url: true },
       },
+      category: {
+        select: {
+          id: true,
+          emoji: true,
+          query: true,
+          label_es: true,
+          label_en: true,
+        },
+      },
     },
-    orderBy: {
-      createdAt: "asc",
-    },
+    orderBy: { createdAt: "asc" },
   });
 
   const imageViews = await db.storyImageView.findMany({
@@ -151,6 +182,12 @@ export async function GET() {
         fullySeen: boolean;
         description: string;
         createdAt: Date;
+        category: {
+          id: string;
+          name: string;
+          emoji: string;
+          query: string;
+        } | null;
       }[];
     }
   >();
@@ -170,6 +207,15 @@ export async function GET() {
       description: story.description,
       createdAt: story.createdAt,
       fullySeen: storyViewSet.has(story.id),
+      category: story.category
+        ? {
+            id: story.category.id,
+            emoji: story.category.emoji,
+            query: story.category.query,
+            name:
+              lang === "en" ? story.category.label_en : story.category.label_es,
+          }
+        : null,
     };
 
     if (!userStoriesMap.has(userKey)) {

@@ -8,6 +8,8 @@ import { PostPreview } from "./Create/Preview";
 import { Pickers } from "./Create/Pickers";
 import { useImageUploader } from "@/hooks/posts/useImageUploader";
 import { toast } from "react-toastify";
+import { ChevronDownIcon, SearchIcon } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 function isUrl(text: string) {
     return /^https?:\/\/[\w.-]+\.[a-z]{2,}(\/\S*)?/i.test(text);
@@ -39,6 +41,8 @@ async function fetchLinkPreview(url: string) {
 }
 
 export default function CreatePost({ t }: { t: any }) {
+    const pathname = usePathname();
+
     const [imageError, setImageError] = useState<string | null>(null);
     const [rawContent, setRawContent] = useState("");
     const [displayContent, setDisplayContent] = useState("");
@@ -56,16 +60,34 @@ export default function CreatePost({ t }: { t: any }) {
     const [loadingLinks, setLoadingLinks] = useState<Set<string>>(new Set());
     const [detectedLinks, setDetectedLinks] = useState<Set<string>>(new Set());
     const [playedEmbeds, setPlayedEmbeds] = useState<Set<string>>(new Set());
+    const [categories, setCategories] = useState<{ id: string; name: string; emoji: string; label: string }[]>([]);
+    const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement>(null);
 
     const emojiRef = useRef(null);
     const gifRef = useRef(null);
     const mentionRef = useRef(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const locale = pathname?.split("/")[1] || "en";
 
+    useClickOutside(dropdownRef, () => setDropdownOpen(false));
     useClickOutside(emojiRef, () => setShowEmojiPicker(false));
     useClickOutside(gifRef, () => setShowGifPicker(false));
     useClickOutside(mentionRef, () => setShowMentionSearch(false));
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            const res = await fetch("/api/categories", {
+                headers: { "x-lang": locale },
+            });
+            const data = await res.json();
+            setCategories(data.categories || []);
+        };
+
+        fetchCategories();
+    }, [locale]);
 
     useEffect(() => {
         const lastAt = rawContent.lastIndexOf("@", caretPos - 1);
@@ -122,7 +144,7 @@ export default function CreatePost({ t }: { t: any }) {
             const res = await fetch("/api/posts", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ content: finalContent, imageUrls, gifUrls, mentionIds: mentionIdsArray })
+                body: JSON.stringify({ content: finalContent, categoryId: selectedCategoryId, imageUrls, gifUrls, mentionIds: mentionIdsArray })
             });
 
             if (!res.ok) throw new Error("Error al publicar");
@@ -164,6 +186,75 @@ export default function CreatePost({ t }: { t: any }) {
                             autoComplete="off"
                             className="bg-transparent text-white border-none resize-none focus:ring-0 text-base placeholder-white/40"
                         />
+
+                        <div className="mb-4 relative" ref={dropdownRef}>
+                            {/*<label className="block text-white/70 text-sm mb-1">
+                                {t("categories.title")}
+                            </label>*/}
+
+                            <button
+                                onClick={() => setDropdownOpen(!dropdownOpen)}
+                                className="w-full flex items-center justify-between gap-2 bg-white/1 text-white rounded-lg px-2 py-2 border border-0 backdrop-blur placeholder-white/40 hover:bg-white/15 transition-colors cursor-pointer"
+                            >
+                                <div className="flex items-center gap-2 truncate">
+                                    {selectedCategoryId ? (
+                                        <>
+                                            <span className="text-lg">
+                                                {categories.find((c: any) => c.id === selectedCategoryId)?.emoji}
+                                            </span>
+                                            <span>
+                                                {categories.find((c: any) => c.id === selectedCategoryId)?.label}
+                                            </span>
+                                        </>
+                                    ) : (
+                                        <span className={`flex items-center px-0 py-0.5 cursor-pointer text-white/60 transition-colors`}>
+                                            <SearchIcon className="size-6 pr-1" />
+                                            {t("categories.select")}
+                                        </span>
+                                    )}
+                                </div>
+                                <ChevronDownIcon
+                                    size={16}
+                                    className={`text-white/60 transition-transform ${dropdownOpen ? "rotate-180" : ""
+                                        }`}
+                                />
+                            </button>
+
+                            {dropdownOpen && (
+                                <div className="absolute z-20 w-full mt-1 bg-[#0E0E0E] border border-white/10 rounded-lg shadow-lg overflow-hidden">
+                                    <div className="max-h-60 overflow-y-auto custom-scrollbar">
+                                        <div
+                                            className={`flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-white/10 transition-colors text-white/60 hover:text-white ${!selectedCategoryId ? "bg-[#F5339A]/10 text-[#F5339A]" : ""
+                                                }`}
+                                            onClick={() => {
+                                                setSelectedCategoryId(null);
+                                                setDropdownOpen(false);
+                                            }}
+                                        >
+                                            <span className="text-lg">❌</span>
+                                            <span className="truncate">{t("categories.emptyCategory")}</span>
+                                        </div>
+
+                                        {categories.map((cat) => (
+                                            <div
+                                                key={cat.id}
+                                                className={`flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-white/10 transition-colors ${selectedCategoryId === cat.id
+                                                    ? "bg-[#F5339A]/10 text-[#F5339A]"
+                                                    : "text-white/80"
+                                                    }`}
+                                                onClick={() => {
+                                                    setSelectedCategoryId(cat.id);
+                                                    setDropdownOpen(false);
+                                                }}
+                                            >
+                                                <span className="text-lg">{cat.emoji}</span>
+                                                <span className="truncate">{cat.label}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
 
                         <PostActions
                             t={t}

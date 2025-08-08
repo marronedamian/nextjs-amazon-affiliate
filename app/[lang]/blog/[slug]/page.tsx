@@ -71,15 +71,17 @@ export default async function Page({ params }: { params: { lang: "es" | "en"; sl
         </div>
 
         <div className="bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-xl px-8 py-10">
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-white leading-tight mb-4 text-center">
-            {post.title}
-          </h1>
-          <p className="text-sm text-gray-400 mb-8 text-center">
-            {new Date(post.createdAt).toLocaleDateString(
-              params.lang === "es" ? "es-ES" : "en-US",
-              { year: "numeric", month: "long", day: "numeric" }
-            )}
-          </p>
+          {/*
+            <h1 className="text-4xl sm:text-5xl font-extrabold text-white leading-tight mb-4 text-center">
+              {post.title}
+            </h1>
+            <p className="text-sm text-gray-400 mb-8 text-center">
+              {new Date(post.createdAt).toLocaleDateString(
+                params.lang === "es" ? "es-ES" : "en-US",
+                { year: "numeric", month: "long", day: "numeric" }
+              )}
+            </p>
+          */}
 
           <ArticleContent html={formatMarkdownToHtml(post.content)} />
 

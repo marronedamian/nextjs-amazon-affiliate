@@ -98,6 +98,11 @@
     "next": "Next",
     "finish": "Finish"
   },
+  "categories": {
+    "title": "Categories",
+    "select": "Select category",
+    "emptyCategory": "No category"
+  },
   "posts": {
     "newPosts_one": "View {{count}} new post",
     "newPosts_other": "View {{count}} new posts",

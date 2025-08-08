@@ -64,20 +64,23 @@ export async function GET(req: NextRequest) {
     include: {
       preferences: {
         include: {
-          categories: true,
+          categories: {
+            include: {
+              category: true,
+            },
+          },
         },
       },
     },
   });
 
-  if (!user?.preferences) {
-    return NextResponse.json({ preferences: null }, { status: 200 });
+  if (!user || !user.preferences) {
+    return NextResponse.json({ error: "Preferences not found" }, { status: 404 });
   }
-
   const { priceRangeMin, priceRangeMax, categories } = user.preferences;
   return NextResponse.json({
     priceRangeMin,
     priceRangeMax,
-    categories: categories.map((c) => c.name),
+    categories: categories.map((c) => c.category.label_es || c.category.label_en),
   });
 }

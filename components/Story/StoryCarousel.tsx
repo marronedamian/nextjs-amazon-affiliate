@@ -105,8 +105,8 @@ export default function StoryCarousel({
 
     return (
         <>
-            {stories.length > 0 ? (
-                <section className="pt-20 pb-2 px-8 text-center z-10 relative">
+            {stories.length > 0 || status === "authenticated" ? (
+                <section className="pt-20 pb-2 px-8 xl:px-0 text-center z-10 relative">
                     <div className="max-w-7xl mx-auto p-0 bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-lg">
                         <motion.div
                             className="flex space-x-4 p-4 overflow-x-auto w-full"

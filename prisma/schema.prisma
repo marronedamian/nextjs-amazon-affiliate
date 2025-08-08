@@ -23,6 +23,20 @@ model Article {
   amazonLink  String
   products    Json
   createdAt   DateTime @default(now())
+
+  categories ArticleCategory[] // Relación N:M
+}
+
+model ArticleCategory {
+  id         String   @id @default(cuid())
+  articleId  String
+  categoryId String
+  article    Article  @relation(fields: [articleId], references: [id])
+  category   Category @relation(fields: [categoryId], references: [id])
+  createdAt  DateTime @default(now())
+
+  @@unique([articleId, categoryId])
+  @@map("ArticleCategory")
 }
 
 //
@@ -87,15 +101,36 @@ model Preferences {
 }
 
 model CategoryPreference {
-  id   String @id @default(cuid())
-  name String
-
+  id            String      @id @default(cuid())
   preferencesId String
   preferences   Preferences @relation(fields: [preferencesId], references: [id])
+  categoryId    String
+  category      Category    @relation(fields: [categoryId], references: [id])
+  createdAt     DateTime    @default(now())
+
+  @@unique([preferencesId, categoryId])
+  @@map("CategoryPreference")
+}
+
+//
+// ---------- CATEGORY ----------
+//
+
+model Category {
+  id       String @id @default(cuid())
+  emoji    String
+  query    String @unique
+  label_es String
+  label_en String
+
+  preferences       CategoryPreference[]
+  postCategories    PostCategory[]
+  storyCategories   StoryCategory[]
+  articleCategories ArticleCategory[]
 
   createdAt DateTime @default(now())
-
-  @@map("CategoryPreference")
+  Story     Story[]
+  Post      Post[]
 }
 
 //
@@ -178,7 +213,22 @@ model Story {
   StoryImageView StoryImageView[]
   Notification   Notification[]
 
+  categoryId    String?
+  category      Category?       @relation(fields: [categoryId], references: [id])
+  StoryCategory StoryCategory[]
+
   @@map("Story")
+}
+
+model StoryCategory {
+  id         String   @id @default(cuid())
+  storyId    String
+  categoryId String
+  story      Story    @relation(fields: [storyId], references: [id])
+  category   Category @relation(fields: [categoryId], references: [id])
+  createdAt  DateTime @default(now())
+
+  @@unique([storyId, categoryId])
 }
 
 model StoryImage {
@@ -242,8 +292,23 @@ model Post {
   updatedAt    DateTime       @updatedAt
   Notification Notification[]
 
+  categoryId   String?
+  category     Category?      @relation(fields: [categoryId], references: [id])
+  PostCategory PostCategory[]
+
   @@unique([userId, repostId])
   @@map("Post")
+}
+
+model PostCategory {
+  id         String   @id @default(cuid())
+  postId     String
+  categoryId String
+  post       Post     @relation(fields: [postId], references: [id])
+  category   Category @relation(fields: [categoryId], references: [id])
+  createdAt  DateTime @default(now())
+
+  @@unique([postId, categoryId])
 }
 
 model PostImage {

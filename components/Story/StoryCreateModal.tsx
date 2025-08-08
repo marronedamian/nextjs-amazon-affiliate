@@ -6,7 +6,20 @@ import { toast } from "react-hot-toast";
 import type { OurFileRouter } from "@/app/api/uploadthing/core";
 import { io } from "socket.io-client";
 import { motion } from "framer-motion";
-import { Loader2, Globe, SendHorizonal, X, Lock, CheckCircle } from "lucide-react";
+import dynamic from "next/dynamic";
+import {
+    Loader2,
+    Globe,
+    SendHorizonal,
+    X,
+    Lock,
+    CheckCircle,
+    Video,
+} from "lucide-react";
+
+const VideoRecorder = dynamic(() => import("@/components/Story/FullScreen/StoryVideoRecorder"), {
+    ssr: false,
+});
 
 interface Props {
     t: any;
@@ -20,6 +33,7 @@ export default function StoryCreateModal({ t, onClose, onStoryCreated }: Props) 
     const [isGlobal, setIsGlobal] = useState(false);
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
+    const [showVideoRecorder, setShowVideoRecorder] = useState(false);
     const socketRef = useRef<any>(null);
 
     useEffect(() => {
@@ -93,7 +107,7 @@ export default function StoryCreateModal({ t, onClose, onStoryCreated }: Props) 
                 />
 
                 <div className="relative group mb-3">
-                    {images.length < 4 ? (
+                    {images.length < 4 && !showVideoRecorder ? (
                         <UploadDropzone<OurFileRouter, "storyImageUploader">
                             endpoint="storyImageUploader"
                             onUploadBegin={() => setUploading(true)}
@@ -122,7 +136,7 @@ export default function StoryCreateModal({ t, onClose, onStoryCreated }: Props) 
                         </div>
                     )}
 
-                    {!uploading && images.length < 4 && (
+                    {!uploading && images.length < 4 && !showVideoRecorder && (
                         <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none px-4">
                             <div className="text-3xl text-[#f6339a] mb-1">📸</div>
                             <p className="text-white/80 text-sm leading-tight">
@@ -140,6 +154,17 @@ export default function StoryCreateModal({ t, onClose, onStoryCreated }: Props) 
                         </div>
                     )}
                 </div>
+
+                {showVideoRecorder && (
+                    <div className="mb-4">
+                        <VideoRecorder
+                            onUploadComplete={(url) => {
+                                setImages((prev) => [...prev, url]);
+                                setShowVideoRecorder(false);
+                            }}
+                        />
+                    </div>
+                )}
 
                 {images.length > 0 && (
                     <div className="mt-3 grid grid-cols-4 gap-2">

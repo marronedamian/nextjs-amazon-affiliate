@@ -11,6 +11,7 @@ const postSchema = z.object({
   gifUrls: z.array(z.string().url()).optional(),
   mentionIds: z.array(z.string()).optional(),
   repostId: z.string().optional(),
+  categoryId: z.string().optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -29,6 +30,7 @@ export async function POST(req: NextRequest) {
     gifUrls = [],
     mentionIds = [],
     repostId,
+    categoryId,
   } = parsed.data;
 
   const post = await db.post.create({
@@ -37,6 +39,7 @@ export async function POST(req: NextRequest) {
       content,
       isRepost: !!repostId,
       repostId,
+      categoryId,
       images: {
         create: imageUrls.map((url) => ({ url })),
       },
@@ -51,10 +54,11 @@ export async function POST(req: NextRequest) {
       images: true,
       gifs: true,
       mentions: true,
+      category: true,
     },
   });
 
-  // Emitir evento post:new por socket
+  // Emitir evento por socket
   const io = getIO();
   io?.emit("post:new", {
     id: post.id,
@@ -121,29 +125,40 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
-  const userId = session?.user?.id;
+  const userId = session?.user?.id || null;
+
+  const searchParams = req.nextUrl.searchParams;
+  const categoryQuery = searchParams.get("category") || undefined;
 
   const posts = await db.post.findMany({
+    where: categoryQuery
+      ? {
+          category: {
+            query: decodeURIComponent(categoryQuery),
+          },
+        }
+      : undefined,
     orderBy: { createdAt: "desc" },
     include: {
       user: true,
+      category: true,
       images: true,
       gifs: true,
       likes: {
         include: { user: true },
       },
       bookmarks: userId
-        ? { where: { userId } }
-        : false,
+        ? {
+            where: { userId },
+          }
+        : undefined,
       comments: {
         orderBy: { createdAt: "desc" },
         take: 3,
         include: {
           user: true,
           likes: {
-            include: {
-              user: true,
-            },
+            include: { user: true },
           },
         },
       },
@@ -152,10 +167,11 @@ export async function GET(req: NextRequest) {
             where: { userId },
             select: { userId: true },
           }
-        : false,
+        : undefined,
       repost: {
         include: {
           user: true,
+          category: true,
           images: true,
           gifs: true,
           likes: {

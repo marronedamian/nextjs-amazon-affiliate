@@ -1,40 +1,113 @@
-# Next.js Amazon Affiliate Bot 🚀
+# 🛍️ BestPickr - Amazon Affiliate + Social Platform
 
-Proyecto para crear una web automática de reseñas de productos de Amazon, optimizada para SEO, multilenguaje (español e inglés), con generación de contenido mediante OpenAI.
+**BestPickr** es una plataforma moderna desarrollada en Next.js que combina lo mejor de dos mundos:
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+1. 📝 Un blog de reseñas de productos con enlaces de afiliado de Amazon
+2. 📸 Una red social donde los usuarios pueden compartir publicaciones, historias, reseñas y recomendaciones personales
 
-## Getting Started
+---
 
-First, run the development server:
+## 🌐 Demo en producción
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+👉 Probalo en: [https://bestpickr.store](https://bestpickr.store)
+
+Este proyecto es **open source** y está abierto a la comunidad. ¡Cualquier aporte que mejore la plataforma es bienvenido!
+
+---
+
+## 🚀 Tecnologías principales
+
+- **Next.js (App Router)** + **TypeScript**
+- **Tailwind CSS**
+- **Prisma ORM + PostgreSQL**
+- **Docker + Docker Compose**
+- **Jest + Testing Library**
+- **Internacionalización (`[lang]`)**
+- **Sistema de rutas SEO-friendly (`sitemap.xml`, `robots.txt`)**
+- **Soporte para usuarios, historias, publicaciones y perfiles**
+
+---
+
+## 🧠 Funcionalidades destacadas
+
+- 📚 Blog con reseñas de productos y enlaces de afiliado
+- 🧑‍🤝‍🧑 Red social: perfiles, publicaciones, historias (tipo "stories")
+- 🔒 Sistema de autenticación con rutas protegidas
+- 🌍 Soporte multilenguaje
+- 🔗 Sistema de afiliados con seguimiento
+- 📦 Estructura escalable y modular
+
+---
+
+## 📁 Estructura del proyecto
+
+```
+📦 app/
+ ┣ 📂[lang]/[username]        # Rutas por idioma y perfil
+ ┣ 📂auth, blog, landing, messages, notifications, onboarding, post/
+ ┣ 📜 layout.tsx, page.tsx
+
+📦 components/
+ ┣ Blog/, Category/, Feed/, Follow/, Home/, Messages/
+ ┣ Navigation/, Notifications/, Onboarding/, Posts/
+ ┣ Profile/, Reels/, Shared/, Story/...
+
+📂 context/, data/, hooks/, lib/, mocks/, utils/, tests/
+📂 prisma/, providers/, pages/, public/, styles/, types/
+📜 .env, .env.example, Dockerfile, docker-compose.yml, tailwind.config.js, etc.
 ```
 
-Open [http://localhost:8085](http://localhost:8085) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🛠️ Instalación
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+git clone https://github.com/marronedamian/nextjs-amazon-affiliate.git
+cd nextjs-amazon-affiliate
 
-## Learn More
+npm install
+cp .env.example .env
 
-To learn more about Next.js, take a look at the following resources:
+# Usando Docker
+docker-compose up --build
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# O localmente
+npx prisma generate
+npx prisma migrate dev
+npm run dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## ✅ Pruebas
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+npm run test
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## 🤝 Contribuir
+
+Este proyecto está abierto a la comunidad. Si querés ayudar:
+
+1. Fork del repo
+2. Creá una rama: `feature/nueva-funcionalidad`
+3. Hacé tus cambios + tests
+4. Pull Request con descripción clara
+
+---
+
+## 🧭 Roadmap (ideas futuras)
+
+- Feed personalizado basado en intereses
+- Reacciones y comentarios en publicaciones
+- Integración con más programas de afiliados
+- Paginación y filtrado avanzado de productos
+- Dashboard para usuarios creadores
+
+---
+
+## 📄 Licencia
+
+MIT © [Damian Marrone](https://github.com/marronedamian)

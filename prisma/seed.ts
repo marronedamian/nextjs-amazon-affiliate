@@ -149,6 +149,133 @@ async function scripts() {
   console.log(
     "✅ Tipos y traducciones de notificación insertados correctamente."
   );
+
+  const categories = [
+    {
+      emoji: "📱",
+      query: "electronics",
+      label_es: "Electrónica",
+      label_en: "Electronics",
+    },
+    {
+      emoji: "👟",
+      query: "clothing+shoes",
+      label_es: "Ropa y Calzado",
+      label_en: "Clothing & Shoes",
+    },
+    {
+      emoji: "🏋️‍♂️",
+      query: "sports+fitness",
+      label_es: "Deportes y Fitness",
+      label_en: "Sports & Fitness",
+    },
+    { emoji: "🍳", query: "kitchen", label_es: "Cocina", label_en: "Kitchen" },
+    { emoji: "💄", query: "beauty", label_es: "Belleza", label_en: "Beauty" },
+    {
+      emoji: "🛋️",
+      query: "home+decor",
+      label_es: "Hogar",
+      label_en: "Home & Decor",
+    },
+    {
+      emoji: "🎮",
+      query: "video+games",
+      label_es: "Videojuegos",
+      label_en: "Video Games",
+    },
+    { emoji: "📚", query: "books", label_es: "Libros", label_en: "Books" },
+    { emoji: "🧸", query: "toys", label_es: "Juguetes", label_en: "Toys" },
+    {
+      emoji: "💻",
+      query: "computers",
+      label_es: "Computación",
+      label_en: "Computers",
+    },
+    { emoji: "🎧", query: "headphones", label_es: "Audio", label_en: "Audio" },
+    {
+      emoji: "🚗",
+      query: "automotive",
+      label_es: "Automotriz",
+      label_en: "Automotive",
+    },
+    { emoji: "👶", query: "baby", label_es: "Bebés", label_en: "Babies" },
+    {
+      emoji: "🐶",
+      query: "pet+supplies",
+      label_es: "Mascotas",
+      label_en: "Pet Supplies",
+    },
+    {
+      emoji: "🖼️",
+      query: "arts+crafts",
+      label_es: "Arte y Manualidades",
+      label_en: "Arts & Crafts",
+    },
+    {
+      emoji: "🧼",
+      query: "personal+care",
+      label_es: "Cuidado Personal",
+      label_en: "Personal Care",
+    },
+    {
+      emoji: "⛺",
+      query: "outdoor+recreation",
+      label_es: "Camping y Outdoor",
+      label_en: "Outdoor Recreation",
+    },
+    {
+      emoji: "💡",
+      query: "lighting",
+      label_es: "Iluminación",
+      label_en: "Lighting",
+    },
+    {
+      emoji: "🧳",
+      query: "travel+gear",
+      label_es: "Viajes",
+      label_en: "Travel Gear",
+    },
+    {
+      emoji: "🪑",
+      query: "furniture",
+      label_es: "Muebles",
+      label_en: "Furniture",
+    },
+    {
+      emoji: "🛠️",
+      query: "tools+hardware",
+      label_es: "Herramientas",
+      label_en: "Tools & Hardware",
+    },
+    {
+      emoji: "🏫",
+      query: "office+school+supplies",
+      label_es: "Escolar y Oficina",
+      label_en: "Office & School Supplies",
+    },
+    {
+      emoji: "🕶️",
+      query: "fashion+accessories",
+      label_es: "Accesorios",
+      label_en: "Fashion Accessories",
+    },
+    {
+      emoji: "🧃",
+      query: "grocery",
+      label_es: "Comida y Bebida",
+      label_en: "Grocery",
+    },
+  ];
+
+  for (const c of categories) {
+    await prisma.category.upsert({
+      where: { query: c.query },
+      update: {},
+      create: c,
+    });
+  }
+
+  console.log("✅ Tipos, traducciones y categorías insertados correctamente.");
 }
 
 scripts()

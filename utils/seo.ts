@@ -37,6 +37,10 @@ export function generatePostMetadata(post: Post): Metadata {
   const { lang, title, description, slug, thumbnail } = post;
   const isEs = lang === "es";
 
+  const imageUrl = thumbnail?.startsWith("http")
+    ? thumbnail
+    : `${SITE_URL}${thumbnail}`;
+
   return {
     title,
     description,
@@ -47,13 +51,19 @@ export function generatePostMetadata(post: Post): Metadata {
       siteName: "BestPickr.store",
       images: [
         {
-          url: `${SITE_URL}${thumbnail}`,
+          url: imageUrl,
           width: 1200,
           height: 630,
         },
       ],
       locale: isEs ? "es_ES" : "en_US",
       type: "article",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [imageUrl],
     },
     alternates: {
       canonical: `${SITE_URL}/${lang}/blog/${slug}`,

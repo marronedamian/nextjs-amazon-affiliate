@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next";
 import useSessionTracker from "@/hooks/auth/useSessionTracker";
 import StoryCarousel from "@/components/Story/StoryCarousel";
 import Feed from "@/components/Feed/FeedContent";
+import CategorySidebar from "@/components/Category/CategorySidebar";
 import Background from "@/components/Shared/Background";
 
 export default function HomePage({ lang }: { lang: string }) {
@@ -39,26 +40,30 @@ export default function HomePage({ lang }: { lang: string }) {
 
     return (
         <Background>
-            <AnimatePresence mode="wait">
-                <motion.div
-                    key="homeScreen"
-                    className="relative z-10 flex flex-col items-center justify-start h-full w-full space-y-4 pb-24"
-                    variants={screenVariants}
-                    initial="initial"
-                    animate="animate"
-                    exit="exit"
-                >
-                    {/* Historias */}
-                    <div className="w-full">
-                        <StoryCarousel t={t} />
-                    </div>
+            <div className="flex w-full min-h-screen">
+                {/* Sidebar */}
+                <CategorySidebar t={t} />
 
-                    {/* Feed */}
-                    <div className="w-full">
-                        <Feed t={t} />
-                    </div>
-                </motion.div>
-            </AnimatePresence>
+                {/* Main content */}
+                <AnimatePresence mode="wait">
+                    <motion.div
+                        key="homeScreen"
+                        className="flex-1 flex flex-col items-center justify-start h-full w-full space-y-4 pb-24 px-4"
+                        variants={screenVariants}
+                        initial="initial"
+                        animate="animate"
+                        exit="exit"
+                    >
+                        <div className="w-full">
+                            <StoryCarousel t={t} />
+                        </div>
+
+                        <div className="w-full">
+                            <Feed t={t} />
+                        </div>
+                    </motion.div>
+                </AnimatePresence>
+            </div>
         </Background>
     );
 }
