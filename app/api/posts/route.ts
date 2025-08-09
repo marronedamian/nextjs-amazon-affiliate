@@ -7,11 +7,11 @@ import { z } from "zod";
 
 const postSchema = z.object({
   content: z.string().min(1),
-  imageUrls: z.array(z.string().url()).optional(),
-  gifUrls: z.array(z.string().url()).optional(),
-  mentionIds: z.array(z.string()).optional(),
+  imageUrls: z.array(z.string().url()).optional().default([]),
+  gifUrls: z.array(z.string().url()).optional().default([]),
+  mentionIds: z.array(z.string()).optional().default([]),
   repostId: z.string().optional(),
-  categoryId: z.string().optional(),
+  categoryId: z.string().nullable().optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -26,9 +26,9 @@ export async function POST(req: NextRequest) {
 
   const {
     content,
-    imageUrls = [],
-    gifUrls = [],
-    mentionIds = [],
+    imageUrls,
+    gifUrls,
+    mentionIds,
     repostId,
     categoryId,
   } = parsed.data;
@@ -39,7 +39,8 @@ export async function POST(req: NextRequest) {
       content,
       isRepost: !!repostId,
       repostId,
-      categoryId,
+      // si viene null, lo convertimos en undefined (no setea la FK)
+      categoryId: categoryId ?? undefined,
       images: {
         create: imageUrls.map((url) => ({ url })),
       },
@@ -91,9 +92,7 @@ export async function POST(req: NextRequest) {
                 userId,
                 fromUserId: session.user.id!,
                 postId: post.id,
-                message: `${
-                  session.user.name ?? "Alguien"
-                } te mencionó en una publicación.`,
+                message: `${session.user.name ?? "Alguien"} te mencionó en una publicación.`,
                 metadata: {
                   fromUserName: session.user.name,
                   fromUserImage: session.user.image,
